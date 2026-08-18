@@ -1,0 +1,220 @@
+<template>
+  <div class="container">
+    <nav-bar title="指南针"></nav-bar>
+    <div class="compass-body">
+      <div class="compass-ring">
+        <text class="direction-n">N</text>
+        <div class="compass-middle">
+          <text class="direction-w">W</text>
+          <div class="compass-center">
+            <text class="degree-text">{{ heading }}°</text>
+            <text class="direction-text">{{ directionLabel }}</text>
+          </div>
+          <text class="direction-e">E</text>
+        </div>
+        <text class="direction-s">S</text>
+      </div>
+    </div>
+
+    <div class="bottom-hint">
+      <text class="swipe-hint">上滑返回</text>
+    </div>
+  </div>
+</template>
+
+<script>
+var gestureRouter = require('../../common/gestureRouter.js');
+var logger = require('../../common/logger.js');
+import NavBar from '../../components/nav-bar.ux';
+
+var sensorService = null;
+try {
+  sensorService = require('@system.sensor');
+} catch (e) {
+  logger.warn('sensor 不可用，使用模拟数据');
+}
+
+export default {
+  components: { NavBar },
+  private: {
+    heading: 0,
+    directionLabel: '北',
+    _simTimer: null,
+    showExitHint: false,
+    _lastSwipeTime: 0
+  },
+
+  onReady() {
+    logger.info('compass page ready');
+    gestureRouter.setCurrentPage('pages/compass');
+    this.startCompass();
+  },
+
+  onDestroy() {
+    this.stopCompass();
+  },
+
+  startCompass() {
+    if (sensorService) {
+      try {
+        var self = this;
+        sensorService.subscribe({
+          sensorId: sensorService.SENSOR_ID.COMPASS,
+          callback: function(data) {
+            self.heading = Math.round(data.direction || 0);
+            self.updateDirectionLabel();
+          },
+          fail: function() {
+            self.simulateCompass();
+          }
+        });
+        return;
+      } catch (e) {}
+    }
+    this.simulateCompass();
+  },
+
+  simulateCompass() {
+    var self = this;
+    this._simTimer = setInterval(function() {
+      // 基于当前方向小幅随机偏移，模拟真实传感器
+      var delta = (Math.random() - 0.5) * 20;
+      self.heading = Math.round((self.heading + delta + 360) % 360);
+      self.updateDirectionLabel();
+    }, 2000);
+  },
+
+  updateDirectionLabel() {
+    var h = this.heading;
+    if (h >= 337.5 || h < 22.5) {
+      this.directionLabel = '北';
+    } else if (h < 67.5) {
+      this.directionLabel = '东北';
+    } else if (h < 112.5) {
+      this.directionLabel = '东';
+    } else if (h < 157.5) {
+      this.directionLabel = '东南';
+    } else if (h < 202.5) {
+      this.directionLabel = '南';
+    } else if (h < 247.5) {
+      this.directionLabel = '西南';
+    } else if (h < 292.5) {
+      this.directionLabel = '西';
+    } else {
+      this.directionLabel = '西北';
+    }
+  },
+
+  stopCompass() {
+    if (sensorService) {
+      try {
+        sensorService.unsubscribe({ sensorId: sensorService.SENSOR_ID.COMPASS });
+      } catch (e) {}
+    }
+    if (this._simTimer) {
+      clearInterval(this._simTimer);
+    }
+  },
+
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        gestureRouter.handleSwipe('pages/compass', 'right');
+        return;
+      }
+      this._lastSwipeTime = now;
+      this.showExitHint = true;
+      var self = this;
+      setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  border-radius: 50%;
+}
+
+.compass-body {
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-ring {
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
+  border-width: 2px;
+  border-color: #333333;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0px;
+}
+
+.direction-n {
+  color: #FF263C;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.compass-middle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0px 8px;
+}
+
+.direction-w {
+  color: #888888;
+  font-size: 16px;
+}
+
+.compass-center {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.degree-text {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.direction-text {
+  color: #888888;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.direction-e {
+  color: #888888;
+  font-size: 16px;
+}
+
+.direction-s {
+  color: #888888;
+  font-size: 16px;
+}
+
+.bottom-hint {
+  align-items: center;
+  margin-top: 30px;
+}
+
+.swipe-hint {
+  color: #666666;
+  font-size: 14px;
+}
+</style>

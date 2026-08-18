@@ -1,0 +1,270 @@
+<template>
+  <div class="container">
+    <!-- 标题 -->
+    <nav-bar title="小智AI"></nav-bar>
+
+    <!-- 连接状态 -->
+    <div class="status-area">
+      <div class="status-indicator">
+        <text class="status-dot" style="color: {{ isConnected ? '#00E676' : '#FF263C' }}">●</text>
+        <text class="status-text">{{ isConnected ? '已连接' : '未连接' }}</text>
+      </div>
+      <text class="device-name" if="{{ isConnected }}">{{ deviceName }}</text>
+    </div>
+
+    <!-- 功能区域 -->
+    <div class="feature-list">
+      <div class="feature-item" onclick="onConnectBLE">
+        <text class="feature-icon">📶</text>
+        <text class="feature-name">{{ isConnected ? '断开连接' : '连接蓝牙' }}</text>
+        <text class="feature-desc">{{ isConnected ? '点击断开BLE连接' : '点击连接小智AI设备' }}</text>
+      </div>
+
+      <div class="feature-item" onclick="onActivateDevice" if="{{ isConnected && !isActivated }}">
+        <text class="feature-icon">🔑</text>
+        <text class="feature-name">激活设备</text>
+        <text class="feature-desc">前往 xiaozhi.me 输入设备码</text>
+      </div>
+
+      <div class="feature-item" onclick="onVoiceChat" if="{{ isConnected && isActivated }}">
+        <text class="feature-icon">🎤</text>
+        <text class="feature-name">语音对话</text>
+        <text class="feature-desc">按KEY2开始语音交互</text>
+      </div>
+
+      <div class="feature-item" onclick="onViewHistory" if="{{ isConnected && isActivated }}">
+        <text class="feature-icon">💬</text>
+        <text class="feature-name">对话历史</text>
+        <text class="feature-desc">查看与小智的对话记录</text>
+      </div>
+    </div>
+
+    <!-- 使用说明 -->
+    <div class="help-section" if="{{ !isConnected }}">
+      <text class="help-title">使用说明</text>
+      <text class="help-text">1. 打开手机蓝牙网络共享</text>
+      <text class="help-text">2. 点击"连接蓝牙"配对设备</text>
+      <text class="help-text">3. 连接后访问 xiaozhi.me 激活</text>
+      <text class="help-text">4. 使用KEY2按钮进行语音对话</text>
+    </div>
+
+    <!-- 底部提示 -->
+    <div class="bottom-hint">
+      <text class="swipe-hint">右滑返回</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+
+var bleService = require('../../common/bleService.js');
+var gestureRouter = require('../../common/gestureRouter.js');
+var logger = require('../../common/logger.js');
+import NavBar from '../../components/nav-bar.ux';
+
+export default {
+  components: { NavBar },
+  private: {
+    isConnected: false,
+    isActivated: false,
+    deviceName: '',
+    showExitHint: false,
+    _statusTimer: null,
+    _lastSwipeTime: 0
+  },
+
+  onReady() {
+    logger.info('xiaozhi page ready');
+    gestureRouter.setCurrentPage('pages/xiaozhi');
+    this.updateStatus();
+    this.startStatusPolling();
+  },
+
+  onDestroy() {
+    this.stopStatusPolling();
+  },
+
+  startStatusPolling() {
+    var self = this;
+    this._statusTimer = setInterval(function() {
+      self.updateStatus();
+    }, 2000);
+  },
+
+  stopStatusPolling() {
+    if (this._statusTimer) {
+      clearInterval(this._statusTimer);
+      this._statusTimer = null;
+    }
+  },
+
+  updateStatus() {
+    this.isConnected = bleService.isConnected();
+    if (this.isConnected) {
+      this.deviceName = bleService.getDeviceId() || 'sifli-pan';
+    }
+  },
+
+  onConnectBLE() {
+    var self = this;
+    if (this.isConnected) {
+      bleService.disconnect();
+      this.isConnected = false;
+      this.deviceName = '';
+      logger.info('BLE已断开');
+    } else {
+      logger.info('开始连接BLE...');
+      bleService.connect('sifli-pan').then(function() {
+        self.isConnected = true;
+        self.deviceName = 'sifli-pan';
+        logger.info('BLE连接成功');
+      }).catch(function(err) {
+        logger.error('BLE连接失败: ' + err.message);
+        self.isConnected = false;
+      });
+    }
+  },
+
+  onActivateDevice() {
+    // 显示激活提示
+    logger.info('请访问 xiaozhi.me 激活设备');
+  },
+
+  onVoiceChat() {
+    // 触发语音对话
+    logger.info('开始语音对话...');
+    if (bleService.isConnected()) {
+      bleService.simulateAIResponse();
+    }
+  },
+
+  onViewHistory() {
+    router.push({ uri: '/pages/history' });
+  },
+
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        router.back();
+        return;
+      }
+      this._lastSwipeTime = now;
+      this.showExitHint = true;
+      var self = this;
+      setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 24px 24px;
+  border-radius: 50%;
+}
+
+.status-area {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #1a1a1a;
+  border-radius: 16px;
+  width: 100%;
+}
+
+.status-indicator {
+  flex-direction: row;
+  align-items: center;
+}
+
+.status-dot {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.status-text {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.device-name {
+  color: #888888;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.feature-list {
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+}
+
+.feature-item {
+  flex-direction: row;
+  align-items: center;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  border-width: 1px;
+  border-color: #333333;
+}
+
+.feature-icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.feature-name {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  flex: 1;
+}
+
+.feature-desc {
+  color: #888888;
+  font-size: 12px;
+}
+
+.help-section {
+  flex-direction: column;
+  width: 100%;
+  padding: 16px;
+  background-color: #111111;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.help-title {
+  color: #FFD700;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.help-text {
+  color: #888888;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.bottom-hint {
+  align-items: center;
+  margin-top: auto;
+}
+
+.swipe-hint {
+  color: #666666;
+  font-size: 14px;
+}
+</style>

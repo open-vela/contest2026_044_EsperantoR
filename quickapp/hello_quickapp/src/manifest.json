@@ -27,12 +27,20 @@
     "entry": "pages/clock",
     "pages": {
       "pages/clock": { "component": "clock" },
-      "pages/index": { "component": "index" },
       "pages/exercise_select": { "component": "exercise_select" },
+      "pages/exercise_list": { "component": "exercise_list" },
       "pages/exercise_active": { "component": "exercise_active" },
       "pages/ai_result": { "component": "ai_result" },
       "pages/history": { "component": "history" },
-      "pages/compass": { "component": "compass" }
+      "pages/compass": { "component": "compass" },
+      "pages/altitude": { "component": "altitude" },
+      "pages/timer": { "component": "timer" },
+      "pages/music": { "component": "music" },
+      "pages/health": { "component": "health" },
+      "pages/weather": { "component": "weather" },
+      "pages/settings": { "component": "settings" },
+      "pages/xiaozhi": { "component": "xiaozhi" },
+      "pages/control_center": { "component": "control_center" }
     }
   }
 }

@@ -1,0 +1,75 @@
+<template>
+  <div class="container">
+    <nav-bar title="音乐"></nav-bar>
+    <div class="content">
+      <div class="album-art">
+        <text class="album-icon">🎵</text>
+      </div>
+      <text class="song-title">{{ songTitle }}</text>
+      <text class="song-artist">{{ artist }}</text>
+      <div class="progress-area">
+        <div class="progress-bg">
+          <div class="progress-fill" style="width: {{ progress }}%;"></div>
+        </div>
+        <div class="time-row">
+          <text class="time-text">{{ currentTime }}</text>
+          <text class="time-text">{{ totalTime }}</text>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl-btn" onclick="onPrev"><text class="ctrl-icon">⏮</text></div>
+        <div class="ctrl-btn ctrl-play" onclick="onPlay"><text class="ctrl-icon">{{ playing ? '⏸' : '▶' }}</text></div>
+        <div class="ctrl-btn" onclick="onNext"><text class="ctrl-icon">⏭</text></div>
+      </div>
+    </div>
+    <div class="bottom-hint"><text class="swipe-hint">双右滑返回</text></div>
+    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出</text></div>
+  </div>
+</template>
+
+<script>
+var logger = require('../../common/logger.js');
+import NavBar from '../../components/nav-bar.ux';
+export default {
+  components: { NavBar },
+  private: {
+    songTitle: '动感教练 BGM', artist: '运动音乐', playing: false, progress: 35,
+    currentTime: '1:23', totalTime: '3:45', showExitHint: false, _lastSwipeTime: 0
+  },
+  onReady() { logger.info('music page ready'); },
+  onPlay() { this.playing = !this.playing; },
+  onPrev() { logger.info('上一首'); },
+  onNext() { logger.info('下一首'); },
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) { require('@system.router').back(); return; }
+      this._lastSwipeTime = now; this.showExitHint = true;
+      var self = this; setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 40px 24px; border-radius: 24px; }
+.content { flex: 1; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+.album-art { width: 80px; height: 80px; border-radius: 40px; background-color: #1a1a1a; align-items: center; justify-content: center; margin-bottom: 12px; }
+.album-icon { font-size: 36px; }
+.song-title { color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+.song-artist { color: #888; font-size: 12px; margin-bottom: 12px; }
+.progress-area { width: 100%; margin-bottom: 16px; }
+.progress-bg { width: 100%; height: 4px; background-color: #333; border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 4px; background-color: #00E676; border-radius: 2px; }
+.time-row { flex-direction: row; justify-content: space-between; margin-top: 4px; }
+.time-text { color: #888; font-size: 10px; }
+.controls { flex-direction: row; align-items: center; }
+.ctrl-btn { width: 44px; height: 44px; border-radius: 22px; background-color: #222; align-items: center; justify-content: center; margin: 0px 10px; }
+.ctrl-play { width: 52px; height: 52px; border-radius: 26px; background-color: #00E676; }
+.ctrl-icon { color: #fff; font-size: 18px; }
+.ctrl-play .ctrl-icon { color: #000; }
+.bottom-hint { align-items: center; margin-top: auto; }
+.swipe-hint { color: #666; font-size: 12px; }
+.exit-hint { position: fixed; bottom: 60px; left: 0; width: 100%; align-items: center; }
+.exit-hint-text { background-color: rgba(255,38,60,0.8); color: #fff; font-size: 12px; padding: 6px 16px; border-radius: 12px; }
+</style>

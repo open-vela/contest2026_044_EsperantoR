@@ -1,0 +1,464 @@
+<template>
+  <div class="container" onclick="onDoubleTap">
+    <nav-bar title="控制中心"></nav-bar>
+    <!-- 顶部状态栏 -->
+    <div class="status-bar">
+      <text class="time-small">{{ currentTime }}</text>
+      <text class="battery-icon">{{ batteryIcon }}</text>
+      <text class="battery-text">{{ batteryLevel }}%</text>
+    </div>
+
+    <!-- 电量指示 -->
+    <div class="section">
+      <div class="section-header">
+        <text class="section-icon">🔋</text>
+        <text class="section-title">电量</text>
+      </div>
+      <div class="battery-bar-bg">
+        <div class="battery-bar-fill" style="width: {{ batteryLevel }}%; background-color: {{ batteryColor }};"></div>
+      </div>
+    </div>
+
+    <!-- 设备状态 -->
+    <div class="section">
+      <div class="section-header">
+        <text class="section-icon">📱</text>
+        <text class="section-title">设备状态</text>
+      </div>
+      <div class="status-grid">
+        <div class="status-item">
+          <text class="status-label">蓝牙</text>
+          <text class="status-value" style="color: {{ bleConnected ? '#00E676' : '#FF263C' }}">{{ bleConnected ? '已连接' : '未连接' }}</text>
+        </div>
+        <div class="status-item">
+          <text class="status-label">网络</text>
+          <text class="status-value" style="color: {{ networkConnected ? '#00E676' : '#888888' }}">{{ networkConnected ? '已连接' : '无网络' }}</text>
+        </div>
+        <div class="status-item">
+          <text class="status-label">传输</text>
+          <text class="status-value">{{ transferSpeed }} KB/s</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 健康信息 -->
+    <div class="section">
+      <div class="section-header">
+        <text class="section-icon">❤️</text>
+        <text class="section-title">健康</text>
+      </div>
+      <div class="health-grid">
+        <div class="health-item">
+          <text class="health-value">{{ heartRate }}</text>
+          <text class="health-label">心率</text>
+        </div>
+        <div class="health-item">
+          <text class="health-value">{{ steps }}</text>
+          <text class="health-label">步数</text>
+        </div>
+        <div class="health-item">
+          <text class="health-value">{{ calories }}</text>
+          <text class="health-label">千卡</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 音乐播放 -->
+    <div class="section">
+      <div class="section-header">
+        <text class="section-icon">🎵</text>
+        <text class="section-title">音乐</text>
+      </div>
+      <div class="music-control">
+        <text class="music-title">{{ musicTitle }}</text>
+        <div class="music-buttons">
+          <div class="music-btn" onclick="onMusicPrev">
+            <text class="music-btn-icon">⏮</text>
+          </div>
+          <div class="music-btn music-btn-play" onclick="onMusicPlay">
+            <text class="music-btn-icon">{{ musicPlaying ? '⏸' : '▶' }}</text>
+          </div>
+          <div class="music-btn" onclick="onMusicNext">
+            <text class="music-btn-icon">⏭</text>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 亮度调节 -->
+    <div class="section">
+      <div class="section-header">
+        <text class="section-icon">☀️</text>
+        <text class="section-title">亮度</text>
+        <text class="brightness-value">{{ brightness }}%</text>
+      </div>
+      <div class="brightness-bar-bg">
+        <div class="brightness-bar-fill" style="width: {{ brightness }}%;"></div>
+      </div>
+      <text class="brightness-hint">双击空白处自动调节</text>
+    </div>
+
+    <!-- 底部提示 -->
+    <div class="bottom-hint">
+      <text class="swipe-hint">上滑返回</text>
+    </div>
+  </div>
+</template>
+
+<script>
+var logger = require('../../common/logger.js');
+var dataStore = require('../../common/dataStore.js');
+var bleService = require('../../common/bleService.js');
+import NavBar from '../../components/nav-bar.ux';
+
+var sensorService = null;
+try {
+  sensorService = require('@system.sensor');
+} catch (e) {}
+
+export default {
+  components: { NavBar },
+  private: {
+    currentTime: '',
+    batteryLevel: 85,
+    batteryIcon: '🔋',
+    batteryColor: '#00E676',
+    bleConnected: false,
+    networkConnected: false,
+    transferSpeed: 0,
+    heartRate: 72,
+    steps: 0,
+    calories: 0,
+    musicTitle: '未播放',
+    musicPlaying: false,
+    brightness: 80,
+    showExitHint: false,
+    _timer: null,
+    _tapCount: 0,
+    _lastTapTime: 0,
+    _lastSwipeTime: 0
+  },
+
+  onReady() {
+    logger.info('control_center page ready');
+    this.updateTime();
+    this.startTimer();
+    this.loadData();
+    this.updateBLEStatus();
+  },
+
+  onDestroy() {
+    this.stopTimer();
+  },
+
+  startTimer() {
+    var self = this;
+    this._timer = setInterval(function() {
+      self.updateTime();
+      self.updateBLEStatus();
+      self.updateTransferSpeed();
+    }, 1000);
+  },
+
+  stopTimer() {
+    if (this._timer) {
+      clearInterval(this._timer);
+      this._timer = null;
+    }
+  },
+
+  updateTime() {
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    this.currentTime = (h < 10 ? '0' + h : '' + h) + ':' + (m < 10 ? '0' + m : '' + m);
+  },
+
+  loadData() {
+    var stats = dataStore.getTodayStats();
+    this.steps = stats.count;
+    this.calories = stats.calories || 0;
+    this.heartRate = dataStore.get('heartRate') || 72;
+  },
+
+  updateBLEStatus() {
+    this.bleConnected = bleService.isConnected();
+    if (this.bleConnected) {
+      this.networkConnected = true;
+    }
+  },
+
+  updateTransferSpeed() {
+    if (this.bleConnected) {
+      this.transferSpeed = Math.floor(Math.random() * 50) + 10;
+    } else {
+      this.transferSpeed = 0;
+    }
+  },
+
+  onDoubleTap() {
+    var now = Date.now();
+    if (now - this._lastTapTime < 300) {
+      this.autoBrightness();
+    }
+    this._lastTapTime = now;
+  },
+
+  autoBrightness() {
+    if (sensorService) {
+      try {
+        var self = this;
+        sensorService.subscribe({
+          sensorId: sensorService.SENSOR_ID.LIGHT,
+          callback: function(data) {
+            var lux = data.intensity || 100;
+            if (lux < 10) {
+              self.brightness = 20;
+            } else if (lux < 100) {
+              self.brightness = 50;
+            } else if (lux < 1000) {
+              self.brightness = 80;
+            } else {
+              self.brightness = 100;
+            }
+            sensorService.unsubscribe({ sensorId: sensorService.SENSOR_ID.LIGHT });
+          },
+          fail: function() {
+            self.brightness = 80;
+          }
+        });
+      } catch (e) {
+        this.brightness = 80;
+      }
+    } else {
+      this.brightness = 80;
+    }
+    logger.info('自动亮度调节: ' + this.brightness + '%');
+  },
+
+  onMusicPlay() {
+    this.musicPlaying = !this.musicPlaying;
+    if (this.musicPlaying) {
+      this.musicTitle = '动感教练 BGM';
+    }
+  },
+
+  onMusicPrev() {
+    logger.info('上一首');
+  },
+
+  onMusicNext() {
+    logger.info('下一首');
+  },
+
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'up') {
+      require('@system.router').back();
+    } else if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        require('@system.router').back();
+        return;
+      }
+      this._lastSwipeTime = now;
+      this.showExitHint = true;
+      var self = this;
+      setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  flex-direction: column;
+  padding: 30px 20px 20px 20px;
+  border-radius: 24px;
+}
+
+.status-bar {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0px 8px;
+}
+
+.time-small {
+  color: #888888;
+  font-size: 14px;
+}
+
+.battery-icon {
+  font-size: 16px;
+}
+
+.battery-text {
+  color: #00E676;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.section {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background-color: #111111;
+  border-radius: 12px;
+}
+
+.section-header {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.section-icon {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+.section-title {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  flex: 1;
+}
+
+.brightness-value {
+  color: #FFD700;
+  font-size: 12px;
+}
+
+.battery-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: #333333;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.battery-bar-fill {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.status-grid {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.status-item {
+  flex-direction: column;
+  align-items: center;
+}
+
+.status-label {
+  color: #888888;
+  font-size: 11px;
+}
+
+.status-value {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.health-grid {
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.health-item {
+  flex-direction: column;
+  align-items: center;
+}
+
+.health-value {
+  color: #00E676;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.health-label {
+  color: #888888;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.music-control {
+  flex-direction: column;
+  align-items: center;
+}
+
+.music-title {
+  color: #ffffff;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.music-buttons {
+  flex-direction: row;
+  align-items: center;
+}
+
+.music-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background-color: #222222;
+  align-items: center;
+  justify-content: center;
+  margin: 0px 8px;
+}
+
+.music-btn-play {
+  width: 42px;
+  height: 42px;
+  border-radius: 21px;
+  background-color: #00E676;
+}
+
+.music-btn-icon {
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.music-btn-play .music-btn-icon {
+  color: #000000;
+}
+
+.brightness-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: #333333;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.brightness-bar-fill {
+  height: 6px;
+  background-color: #FFD700;
+  border-radius: 3px;
+}
+
+.brightness-hint {
+  color: #555555;
+  font-size: 10px;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.bottom-hint {
+  align-items: center;
+  margin-top: auto;
+}
+
+.swipe-hint {
+  color: #666666;
+  font-size: 12px;
+}
+</style>

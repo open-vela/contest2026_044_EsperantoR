@@ -1,0 +1,206 @@
+<template>
+  <div class="container">
+    <nav-bar title="天气"></nav-bar>
+    <text class="location">{{ location }}</text>
+
+    <!-- 当前天气 -->
+    <div class="current-weather">
+      <text class="weather-icon">{{ weatherIcon }}</text>
+      <div class="temp-area">
+        <text class="temp-value">{{ temperature }}°</text>
+        <text class="weather-desc">{{ weatherDesc }}</text>
+      </div>
+    </div>
+
+    <!-- 详细信息 -->
+    <div class="detail-grid">
+      <div class="detail-item">
+        <text class="detail-icon">💧</text>
+        <text class="detail-value">{{ humidity }}%</text>
+        <text class="detail-label">湿度</text>
+      </div>
+      <div class="detail-item">
+        <text class="detail-icon">🌬️</text>
+        <text class="detail-value">{{ windSpeed }}</text>
+        <text class="detail-label">风速</text>
+      </div>
+      <div class="detail-item">
+        <text class="detail-icon">🌡️</text>
+        <text class="detail-value">{{ feelsLike }}°</text>
+        <text class="detail-label">体感</text>
+      </div>
+    </div>
+
+    <!-- 运动建议 -->
+    <div class="advice-section">
+      <text class="advice-title">🏃 运动建议</text>
+      <text class="advice-text">{{ exerciseAdvice }}</text>
+    </div>
+
+    <!-- 未来3小时 -->
+    <div class="forecast-section">
+      <text class="forecast-title">未来3小时</text>
+      <div class="forecast-list">
+        <div class="forecast-item" for="{{ forecast }}">
+          <text class="forecast-time">{{ $item.time }}</text>
+          <text class="forecast-icon">{{ $item.icon }}</text>
+          <text class="forecast-temp">{{ $item.temp }}°</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-hint">
+      <text class="swipe-hint">双右滑返回</text>
+    </div>
+    <div class="exit-hint" if="{{ showExitHint }}">
+      <text class="exit-hint-text">再滑一次退出</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import NavBar from '../../components/nav-bar.ux';
+
+var logger = require('../../common/logger.js');
+
+var weatherData = {
+  '晴': { icon: '☀️', advice: '天气晴朗，适合户外运动，注意防晒补水' },
+  '多云': { icon: '⛅', advice: '天气舒适，适合各种运动' },
+  '阴': { icon: '☁️', advice: '天气阴沉，适合室内运动' },
+  '小雨': { icon: '🌧️', advice: '有小雨，建议室内运动' },
+  '中雨': { icon: '🌧️', advice: '雨天路滑，建议室内运动' },
+  '雷阵雨': { icon: '⛈️', advice: '雷雨天气，避免户外运动' },
+  '雪': { icon: '❄️', advice: '下雪天气，注意保暖，建议室内运动' },
+  '雾': { icon: '🌫️', advice: '有雾能见度低，建议室内运动' }
+};
+
+export default {
+  components: { NavBar },
+  private: {
+    location: '当前位置',
+    weatherIcon: '☀️',
+    temperature: 26,
+    weatherDesc: '晴',
+    humidity: 45,
+    windSpeed: '3级',
+    feelsLike: 28,
+    exerciseAdvice: '天气晴朗，适合户外运动，注意防晒补水',
+    forecast: [
+      { time: '14:00', icon: '☀️', temp: 27 },
+      { time: '15:00', icon: '⛅', temp: 26 },
+      { time: '16:00', icon: '⛅', temp: 25 }
+    ],
+    showExitHint: false,
+    _lastSwipeTime: 0,
+    _timer: null
+  },
+
+  onReady() {
+    logger.info('weather page ready');
+    this.fetchWeather();
+    this.startAutoRefresh();
+  },
+
+  onDestroy() {
+    if (this._timer) {
+      clearInterval(this._timer);
+      this._timer = null;
+    }
+  },
+
+  startAutoRefresh() {
+    var self = this;
+    this._timer = setInterval(function() {
+      self.fetchWeather();
+    }, 600000); // 每10分钟刷新
+  },
+
+  fetchWeather() {
+    var self = this;
+    // 模拟天气数据（实际应调用系统API或BLE获取）
+    var weathers = ['晴', '多云', '阴', '小雨'];
+    var randomWeather = weathers[Math.floor(Math.random() * weathers.length)];
+    var data = weatherData[randomWeather] || weatherData['晴'];
+
+    self.weatherIcon = data.icon;
+    self.weatherDesc = randomWeather;
+    self.temperature = Math.round(20 + Math.random() * 15);
+    self.humidity = Math.round(30 + Math.random() * 50);
+    self.feelsLike = self.temperature + Math.round(Math.random() * 4 - 2);
+    self.windSpeed = Math.round(1 + Math.random() * 5) + '级';
+    self.exerciseAdvice = data.advice;
+
+    // 模拟未来天气
+    var forecast = [];
+    var now = new Date();
+    for (var i = 1; i <= 3; i++) {
+      var h = (now.getHours() + i) % 24;
+      var fw = weathers[Math.floor(Math.random() * weathers.length)];
+      var fwData = weatherData[fw] || weatherData['晴'];
+      forecast.push({
+        time: (h < 10 ? '0' + h : '' + h) + ':00',
+        icon: fwData.icon,
+        temp: Math.round(self.temperature + Math.random() * 4 - 2)
+      });
+    }
+    self.forecast = forecast;
+
+    logger.info('天气数据已更新: ' + self.weatherDesc + ' ' + self.temperature + '°');
+  },
+
+  onBack() {
+    require('@system.router').back();
+  },
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        require('@system.router').back();
+        return;
+      }
+      this._lastSwipeTime = now;
+      this.showExitHint = true;
+      var self = this;
+      setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 20px 20px 20px; border-radius: 24px; }
+.header { flex-direction: row; align-items: center; margin-bottom: 8px; }
+.back-btn { width: 30px; height: 30px; border-radius: 15px; background-color: #222; align-items: center; justify-content: center; margin-right: 10px; }
+.back-btn-text { color: #fff; font-size: 20px; }
+.title { color: #fff; font-size: 18px; font-weight: bold; }
+.location { color: #888; font-size: 11px; margin-top: 2px; }
+
+.current-weather { flex-direction: row; align-items: center; justify-content: center; margin-bottom: 12px; }
+.weather-icon { font-size: 48px; margin-right: 16px; }
+.temp-area { flex-direction: column; align-items: flex-start; }
+.temp-value { color: #fff; font-size: 48px; font-weight: bold; }
+.weather-desc { color: #888; font-size: 14px; }
+
+.detail-grid { flex-direction: row; justify-content: space-around; width: 100%; margin-bottom: 12px; padding: 10px; background-color: #111; border-radius: 12px; }
+.detail-item { flex-direction: column; align-items: center; }
+.detail-icon { font-size: 16px; margin-bottom: 2px; }
+.detail-value { color: #fff; font-size: 14px; font-weight: bold; }
+.detail-label { color: #888; font-size: 10px; }
+
+.advice-section { width: 100%; padding: 10px; background-color: #0a2a0a; border-radius: 10px; margin-bottom: 10px; border-width: 1px; border-color: #00E676; }
+.advice-title { color: #00E676; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
+.advice-text { color: #aaa; font-size: 12px; line-height: 16px; }
+
+.forecast-section { width: 100%; padding: 10px; background-color: #111; border-radius: 10px; margin-bottom: 10px; }
+.forecast-title { color: #888; font-size: 12px; margin-bottom: 8px; }
+.forecast-list { flex-direction: row; justify-content: space-around; }
+.forecast-item { flex-direction: column; align-items: center; }
+.forecast-time { color: #888; font-size: 11px; margin-bottom: 4px; }
+.forecast-icon { font-size: 20px; margin-bottom: 4px; }
+.forecast-temp { color: #fff; font-size: 13px; font-weight: bold; }
+
+.bottom-hint { align-items: center; margin-top: auto; }
+.swipe-hint { color: #666; font-size: 11px; }
+.exit-hint { position: fixed; bottom: 50px; left: 0; width: 100%; align-items: center; }
+.exit-hint-text { background-color: rgba(255,38,60,0.8); color: #fff; font-size: 11px; padding: 5px 14px; border-radius: 10px; }
+</style>

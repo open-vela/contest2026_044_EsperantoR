@@ -1,0 +1,142 @@
+<template>
+  <div class="container">
+    <nav-bar title="选择运动"></nav-bar>
+
+    <div class="exercise-list">
+      <div class="exercise-item" for="{{ exercises }}" onclick="onSelect($idx)">
+        <text class="exercise-icon">{{ $item.icon }}</text>
+        <div class="exercise-info">
+          <text class="exercise-name">{{ $item.name }}</text>
+          <text class="exercise-detail">{{ $item.detail }}</text>
+        </div>
+        <text class="exercise-arrow">›</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+
+var utils = require('../../common/utils.js');
+var gestureRouter = require('../../common/gestureRouter.js');
+var logger = require('../../common/logger.js');
+import NavBar from '../../components/nav-bar.ux';
+
+export default {
+  components: { NavBar },
+  private: {
+    exercises: [],
+    showExitHint: false,
+    _lastSwipeTime: 0
+  },
+
+  onReady() {
+    logger.info('exercise_list page ready');
+    var types = utils.getAllExerciseTypes();
+    var details = {
+      squat: '15次/组 × 3组',
+      pushup: '12次/组 × 3组',
+      jumping_jack: '20次/组 × 3组',
+      high_knee: '30次/组 × 3组',
+      running: '自由跑步'
+    };
+    for (var i = 0; i < types.length; i++) {
+      types[i].detail = details[types[i].key] || '';
+    }
+    this.exercises = types;
+  },
+
+  onSelect(index) {
+    var item = this.exercises[index];
+    if (item) {
+      router.push({
+        uri: '/pages/exercise_active',
+        params: { exerciseType: item.key }
+      });
+    }
+  }
+}
+</script>
+
+<style>
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 20px 20px;
+  border-radius: 24px;
+}
+
+.exercise-list {
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+}
+
+.exercise-item {
+  flex-direction: row;
+  align-items: center;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  background-color: #111111;
+  border-radius: 14px;
+  border-width: 1px;
+  border-color: #222222;
+}
+
+.exercise-icon {
+  font-size: 28px;
+  margin-right: 14px;
+}
+
+.exercise-info {
+  flex: 1;
+  flex-direction: column;
+}
+
+.exercise-name {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.exercise-detail {
+  color: #888888;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.exercise-arrow {
+  color: #666666;
+  font-size: 20px;
+}
+
+.bottom-hint {
+  align-items: center;
+  margin-top: auto;
+}
+
+.swipe-hint {
+  color: #666666;
+  font-size: 12px;
+}
+
+.exit-hint {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  width: 100%;
+  align-items: center;
+}
+
+.exit-hint-text {
+  background-color: rgba(255, 38, 60, 0.8);
+  color: #ffffff;
+  font-size: 12px;
+  padding: 6px 16px;
+  border-radius: 12px;
+}
+</style>

@@ -1,0 +1,24 @@
+<script>
+var dataStore = require('./common/dataStore.js');
+var powerManager = require('./common/powerManager.js');
+var sensorManager = require('./common/sensorManager.js');
+var pageManager = require('./common/pageManager.js');
+var logger = require('./common/logger.js');
+
+export default {
+  onCreate() {
+    logger.info('动感教练 app created');
+
+    dataStore.init();
+    powerManager.init();
+    sensorManager.init();
+  },
+  onDestroy() {
+    logger.info('动感教练 app destroyed');
+
+    sensorManager.destroy();
+    powerManager.destroy();
+    pageManager.destroy();
+  }
+}
+</script>

@@ -1,0 +1,952 @@
+<template>
+  <div class="container">
+    <!-- 顶部：返回按钮 + 动作名 -->
+    <div class="top-bar">
+      <div class="back-btn" onclick="onBack">
+        <text class="back-btn-text">‹</text>
+      </div>
+      <text class="exercise-icon-top">{{ exerciseIcon }}</text>
+      <text class="exercise-name-top">{{ exerciseName }}</text>
+    </div>
+
+    <!-- 计时器 -->
+    <div class="timer-area">
+      <text class="timer-text">{{ durationText }}</text>
+    </div>
+
+    <!-- 状态指示 -->
+    <div class="status-row">
+      <text class="status-dot-{{ statusClass }}">●</text>
+      <text class="status-{{ statusClass }}">{{ statusText }}</text>
+    </div>
+
+    <!-- 准备状态：显示开始按钮 -->
+    <div class="ready-area" if="{{ isReady }}">
+      <div class="ring-progress">
+        <div class="ring-bg"></div>
+        <div class="ring-inner">
+          <text class="ready-icon">{{ exerciseIcon }}</text>
+        </div>
+      </div>
+      <div class="start-btn" onclick="onStartExercise">
+        <text class="start-btn-text">开始训练</text>
+      </div>
+      <text class="ready-hint">点击开始 · 长按退出</text>
+    </div>
+
+    <!-- 运动中：环形进度 + 计数 -->
+    <div class="count-area" if="{{ !isReady && !isRunningMode }}">
+      <div class="ring-progress">
+        <div class="ring-bg"></div>
+        <div class="ring-fill" style="width: {{ ringSize }}px; height: {{ ringSize }}px; border-color: {{ ringColor }};"></div>
+        <div class="ring-inner">
+          <text class="count-value">{{ currentCount }}</text>
+          <text class="count-target">/ {{ targetCount }}</text>
+        </div>
+      </div>
+      <text class="set-info">第 {{ currentSet }} / {{ totalSets }} 组</text>
+    </div>
+
+    <!-- 跑步模式显示 -->
+    <div class="count-area" if="{{ !isReady && isRunningMode }}">
+      <div class="ring-progress">
+        <div class="ring-bg"></div>
+        <div class="ring-inner">
+          <text class="run-distance">{{ distance }}</text>
+          <text class="run-unit">公里</text>
+        </div>
+      </div>
+      <div class="run-stats">
+        <div class="run-stat">
+          <text class="run-stat-value">{{ pace }}</text>
+          <text class="run-stat-label">配速</text>
+        </div>
+        <div class="run-stat">
+          <text class="run-stat-value">{{ calories }}</text>
+          <text class="run-stat-label">千卡</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 评分 + 心率 -->
+    <div class="info-row" if="{{ !isReady }}">
+      <div class="info-item">
+        <text class="info-label">评分</text>
+        <text class="info-score">{{ currentScore }}</text>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-item">
+        <text class="info-icon-hr">♥</text>
+        <text class="info-value-hr">{{ heartRate }}</text>
+        <text class="info-unit">bpm</text>
+      </div>
+    </div>
+
+    <!-- 底部：波形 + AI建议 + 操作按钮 -->
+    <div class="bottom-area">
+      <div class="waveform" if="{{ !isReady }}">
+        <div class="wave-bar" for="{{ waveData }}" style="height: {{ $item }}px;"></div>
+      </div>
+      <text class="ai-suggestion" if="{{ aiSuggestion && !isReady }}">💡 {{ aiSuggestion }}</text>
+
+      <!-- 运动中操作按钮 -->
+      <div class="action-buttons" if="{{ !isReady }}">
+        <div class="action-btn action-btn-pause" onclick="onTogglePause">
+          <text class="action-btn-icon">{{ isPaused ? '▶' : '⏸' }}</text>
+          <text class="action-btn-text">{{ isPaused ? '继续' : '暂停' }}</text>
+        </div>
+        <div class="action-btn action-btn-stop" onclick="onShowEndConfirm">
+          <text class="action-btn-icon">⏹</text>
+          <text class="action-btn-text">结束</text>
+        </div>
+        <div class="action-btn action-btn-back" onclick="onShowExitConfirm">
+          <text class="action-btn-icon">✕</text>
+          <text class="action-btn-text">退出</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 结束确认弹窗 -->
+    <div class="confirm-overlay" if="{{ showConfirm }}">
+      <div class="confirm-dialog">
+        <text class="confirm-title">结束训练？</text>
+        <text class="confirm-desc">本次数据将保存</text>
+        <div class="confirm-buttons">
+          <div class="confirm-btn-cancel" onclick="onCancelEnd">
+            <text class="btn-text-cancel">取消</text>
+          </div>
+          <div class="confirm-btn-ok" onclick="onConfirmEnd">
+            <text class="btn-text-ok">结束</text>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="confirm-overlay" if="{{ showExitConfirm }}">
+      <div class="confirm-dialog">
+        <text class="confirm-title">退出运动？</text>
+        <text class="confirm-desc">未保存的数据将丢失</text>
+        <div class="confirm-buttons">
+          <div class="confirm-btn-cancel" onclick="onCancelExit">
+            <text class="btn-text-cancel">取消</text>
+          </div>
+          <div class="confirm-btn-ok confirm-btn-danger" onclick="onConfirmExit">
+            <text class="btn-text-ok">退出</text>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 组间休息倒计时 -->
+    <div class="rest-overlay" if="{{ showRestOverlay }}">
+      <div class="rest-content">
+        <text class="rest-title">组间休息</text>
+        <text class="rest-countdown">{{ restCountdown }}</text>
+        <text class="rest-hint">秒后开始下一组</text>
+        <div class="rest-skip-btn" onclick="onSkipRest">
+          <text class="rest-skip-text">跳过休息</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 训练完成庆祝动画 -->
+    <div class="celebration-overlay" if="{{ showCelebration }}">
+      <div class="celebration-content">
+        <text class="celebration-icon" style="opacity: {{ celebrationBlink ? 1 : 0.3 }};">🎉</text>
+        <text class="celebration-text">{{ celebrationText }}</text>
+        <text class="celebration-score">{{ celebrationScore }} 分</text>
+        <text class="celebration-hint">正在生成训练报告...</text>
+      </div>
+    </div>
+
+    <!-- 历史记录浮层 -->
+    <div class="history-overlay" if="{{ showHistory }}">
+      <div class="history-header">
+        <text class="history-title">{{ exerciseName }}历史</text>
+        <div class="history-close" onclick="onCloseHistory">
+          <text class="history-close-text">✕</text>
+        </div>
+      </div>
+      <div class="history-list">
+        <div class="history-item" for="{{ historyRecords }}">
+          <text class="history-time">{{ $item.timeStr }}</text>
+          <text class="history-count">{{ $item.count }}次</text>
+          <text class="history-score">{{ $item.score }}分</text>
+        </div>
+        <text class="history-empty" if="{{ historyRecords.length === 0 }}">暂无记录</text>
+      </div>
+    </div>
+
+    <!-- 待机提示 -->
+    <div class="standby-overlay" if="{{ showStandby }}">
+      <div class="standby-content">
+        <text class="standby-icon">😴</text>
+        <text class="standby-text">检测到无操作</text>
+        <text class="standby-hint">运动已暂停</text>
+        <div class="standby-btn" onclick="onResumeFromStandby">
+          <text class="standby-btn-text">继续运动</text>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+
+var utils = require('../../common/utils.js');
+var motion = require('../../common/motion.js');
+var storage = require('../../common/storage.js');
+var eventBus = require('../../common/eventBus.js');
+var dataStore = require('../../common/dataStore.js');
+var sensorManager = require('../../common/sensorManager.js');
+var gestureRouter = require('../../common/gestureRouter.js');
+var exerciseStateMachine = require('../../common/exerciseStateMachine.js');
+var constants = require('../../common/constants.js');
+var bleService = require('../../common/bleService.js');
+var logger = require('../../common/logger.js');
+
+var vibratorService = null;
+try {
+  vibratorService = require('@system.vibrator');
+} catch (e) {
+  logger.warn('vibrator 不可用');
+}
+
+var IDLE_TIMEOUT = 120000; // 2分钟无操作待机
+
+export default {
+  private: {
+    exerciseType: 'squat',
+    exerciseName: '深蹲',
+    exerciseIcon: '🏋️',
+    targetCount: 15,
+    totalSets: 3,
+    currentSet: 1,
+    currentCount: 0,
+    ringSize: 0,
+    ringColor: '#00E676',
+    currentScore: 100,
+    aiSuggestion: '',
+    heartRate: 72,
+    durationSeconds: 0,
+    durationText: '00:00',
+    waveData: [8, 12, 6, 15, 10, 8, 14, 7, 11, 9, 13, 6],
+    isReady: true,
+    isPaused: false,
+    isRunningMode: false,
+    showConfirm: false,
+    showExitConfirm: false,
+    showRestOverlay: false,
+    showCelebration: false,
+    showHistory: false,
+    showStandby: false,
+    celebrationText: '',
+    celebrationScore: 0,
+    celebrationBlink: false,
+    restCountdown: 30,
+    restDuration: 30,
+    statusClass: 'ready',
+    statusText: '准备开始',
+    distance: '0.00',
+    pace: '0\'00"',
+    calories: 0,
+    historyRecords: [],
+    _mainTimer: null,
+    _restTimer: null,
+    _idleTimer: null,
+    _heartRateHistory: [],
+    _isActive: false,
+    _unsubscribeAccel: null,
+    _unsubscribeHR: null,
+    _runningDistance: 0,
+    _celebTimer: null,
+    _finishing: false,
+    _lastSwipeTime: 0
+  },
+
+  onInit() {
+    // exerciseType 由路由参数自动注入
+  },
+
+  onReady() {
+    logger.info('exercise_active page ready, type=' + this.exerciseType);
+    var type = this.exerciseType || 'squat';
+    var config = utils.getExerciseConfig(type);
+    if (!config) {
+      logger.error('未知运动类型: ' + type);
+      router.back();
+      return;
+    }
+
+    this.exerciseType = type;
+    this.exerciseName = config.name;
+    this.exerciseIcon = config.icon;
+    this.isRunningMode = (type === 'running');
+
+    if (this.isRunningMode) {
+      this.targetCount = 0;
+      this.totalSets = 1;
+    } else {
+      this.targetCount = config.defaultReps || 15;
+      this.totalSets = config.defaultSets || 3;
+    }
+
+    motion.init(type);
+    exerciseStateMachine.init(type);
+    bleService.init();
+    gestureRouter.setCurrentPage('pages/exercise_active');
+
+    this.connectBLE();
+    eventBus.on(eventBus.EVENTS.POWER_STATE_CHANGED, this._onPowerChanged);
+  },
+
+  onDestroy() {
+    logger.info('exercise_active destroyed');
+    this.stopAll();
+    exerciseStateMachine.reset();
+    eventBus.off(eventBus.EVENTS.POWER_STATE_CHANGED, this._onPowerChanged);
+  },
+
+  // === 开始运动 ===
+  onStartExercise() {
+    logger.info('开始运动: ' + this.exerciseType);
+    this.isReady = false;
+    this._isActive = true;
+    this.statusClass = 'active';
+    this.statusText = this.isRunningMode ? '跑步中' : '运动中';
+
+    exerciseStateMachine.start();
+    this.startTimer();
+    this.startSensor();
+    this.startHeartRate();
+    this.resetIdleTimer();
+
+    if (vibratorService) {
+      try { vibratorService.vibrate({ duration: 100 }); } catch (e) {}
+    }
+  },
+
+  // === 暂停/继续 ===
+  onTogglePause() {
+    if (this.showStandby) {
+      this.onResumeFromStandby();
+      return;
+    }
+
+    if (this.isPaused) {
+      this.resumeExercise();
+    } else {
+      this.pauseExercise();
+    }
+    this.resetIdleTimer();
+
+    if (vibratorService) {
+      try { vibratorService.vibrate({ duration: 50 }); } catch (e) {}
+    }
+  },
+
+  pauseExercise() {
+    if (exerciseStateMachine.pause()) {
+      this.stopTimer();
+      sensorManager.setActive(false);
+      this.isPaused = true;
+      this.statusClass = 'paused';
+      this.statusText = '已暂停';
+      logger.info('运动暂停');
+    }
+  },
+
+  resumeExercise() {
+    if (exerciseStateMachine.resume()) {
+      sensorManager.setActive(true);
+      this.startTimer();
+      this.isPaused = false;
+      this.statusClass = 'active';
+      this.statusText = this.isRunningMode ? '跑步中' : '运动中';
+      logger.info('运动继续');
+    }
+  },
+
+  // === 结束运动 ===
+  onShowEndConfirm() {
+    this.showConfirm = true;
+    this.resetIdleTimer();
+  },
+
+  onCancelEnd() {
+    this.showConfirm = false;
+  },
+
+  onConfirmEnd() {
+    this.showConfirm = false;
+    this.finishExercise();
+  },
+
+  onShowExitConfirm() {
+    if (this.isReady) {
+      router.back();
+      return;
+    }
+    this.showExitConfirm = true;
+  },
+
+  onCancelExit() {
+    this.showExitConfirm = false;
+  },
+
+  onConfirmExit() {
+    this.showExitConfirm = false;
+    this.stopAll();
+    exerciseStateMachine.reset();
+    router.back();
+  },
+
+  onBack() {
+    if (this.isReady) {
+      router.back();
+      return;
+    }
+    this.showExitConfirm = true;
+  },
+
+  // === 待机处理 ===
+  resetIdleTimer() {
+    var self = this;
+    if (this._idleTimer) {
+      clearTimeout(this._idleTimer);
+    }
+    this._idleTimer = setTimeout(function() {
+      self.onIdleTimeout();
+    }, IDLE_TIMEOUT);
+  },
+
+  onIdleTimeout() {
+    if (this.isReady || this.isPaused || this.showStandby) return;
+    logger.info('无操作超时，进入待机');
+    this.pauseExercise();
+    this.showStandby = true;
+
+    if (vibratorService) {
+      try { vibratorService.vibrate({ duration: 200 }); } catch (e) {}
+    }
+  },
+
+  onResumeFromStandby() {
+    this.showStandby = false;
+    this.resumeExercise();
+    this.resetIdleTimer();
+  },
+
+  // === 滑动处理 ===
+  onPageSwipe(evt) {
+    if (this.showConfirm || this.showExitConfirm || this.showHistory || this.showStandby) return;
+
+    var direction = evt.direction;
+    var now = Date.now();
+
+    // 双右滑退出运动
+    if (direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        this.showExitConfirm = true;
+        return;
+      }
+      this._lastSwipeTime = now;
+      return;
+    }
+
+    // 下滑查看历史
+    if (direction === 'down') {
+      this.showExerciseHistory();
+      return;
+    }
+  },
+
+  // === 历史记录 ===
+  showExerciseHistory() {
+    var records = storage.getRecords(10);
+    var list = [];
+    if (records && records.length > 0) {
+      for (var i = 0; i < records.length; i++) {
+        var r = records[i];
+        if (r && r.type === this.exerciseType) {
+          var date = new Date(r.timestamp);
+          var timeStr = (date.getMonth() + 1) + '/' + date.getDate() + ' ' +
+            (date.getHours() < 10 ? '0' + date.getHours() : '' + date.getHours()) + ':' +
+            (date.getMinutes() < 10 ? '0' + date.getMinutes() : '' + date.getMinutes());
+          list.push({ timeStr: timeStr, count: r.count || 0, score: r.score || 0 });
+        }
+      }
+    }
+    this.historyRecords = list;
+    this.showHistory = true;
+
+    if (!this.isReady && !this.isPaused) {
+      this.pauseExercise();
+    }
+  },
+
+  onCloseHistory() {
+    this.showHistory = false;
+  },
+
+  // === 计时器 ===
+  startTimer() {
+    var self = this;
+    this._mainTimer = setInterval(function() {
+      if (!exerciseStateMachine.isRunning()) return;
+      self.durationSeconds = exerciseStateMachine.getActiveDuration();
+      self.durationText = utils.formatDuration(self.durationSeconds);
+      self.updateWaveform();
+
+      if (self.isRunningMode) {
+        self.updateRunningStats();
+      }
+    }, 1000);
+  },
+
+  stopTimer() {
+    if (this._mainTimer) {
+      clearInterval(this._mainTimer);
+      this._mainTimer = null;
+    }
+  },
+
+  // === 传感器 ===
+  startSensor() {
+    var self = this;
+    this._unsubscribeAccel = sensorManager.subscribeAccelerometer(function(data) {
+      if (!self._isActive) return;
+      self.resetIdleTimer();
+
+      if (self.isRunningMode) {
+        self.updateRunningDistance(data);
+      } else {
+        var detected = motion.feedSample(data.x || 0, data.y || 0, data.z || 0);
+        if (detected) self.onRepDetected();
+      }
+    });
+  },
+
+  startHeartRate() {
+    var self = this;
+    this._unsubscribeHR = sensorManager.subscribeHeartRate(function(hr) {
+      if (hr > 0 && hr < 220) {
+        self.heartRate = hr;
+        self._heartRateHistory.push(hr);
+      }
+    });
+  },
+
+  // === 跑步模式 ===
+  updateRunningDistance(data) {
+    var x = data.x || 0, y = data.y || 0, z = data.z || 0;
+    var magnitude = Math.sqrt(x * x + y * y + z * z);
+    if (magnitude > 15) {
+      this._runningDistance += 0.001;
+      this.distance = this._runningDistance.toFixed(2);
+    }
+  },
+
+  updateRunningStats() {
+    if (this.durationSeconds > 0 && this._runningDistance > 0) {
+      var paceSeconds = this.durationSeconds / this._runningDistance;
+      var paceMin = Math.floor(paceSeconds / 60);
+      var paceSec = Math.floor(paceSeconds % 60);
+      this.pace = paceMin + "'" + (paceSec < 10 ? '0' + paceSec : '' + paceSec) + '"';
+    }
+    this.calories = Math.round(this._runningDistance * 60);
+  },
+
+  // === 动作检测 ===
+  onRepDetected() {
+    this.currentCount++;
+    if (vibratorService) {
+      try { vibratorService.vibrate({ duration: constants.VIBRATE.REP_DETECTED }); } catch (e) {}
+    }
+
+    var progress = this.currentCount / this.targetCount;
+    if (progress > 1) progress = 1;
+    this.ringSize = Math.round(progress * 120);
+    this.ringColor = progress >= 1 ? '#FFD700' : '#00E676';
+
+    this.currentScore = this.calculateScore(motion.getCount(), exerciseStateMachine.getActiveDuration(), this.getAvgHeartRate());
+
+    if (this.currentCount >= this.targetCount) {
+      if (this.currentSet < this.totalSets) {
+        this.startRestPeriod();
+        if (vibratorService) {
+          try { vibratorService.vibrate({ duration: constants.VIBRATE.SET_COMPLETE }); } catch (e) {}
+        }
+      } else {
+        this.finishExercise();
+      }
+    } else if (this.currentCount === Math.floor(this.targetCount / 2)) {
+      this.aiSuggestion = '已过半，保持节奏！';
+    }
+
+    if (this.currentCount % 5 === 0 && bleService.isConnected()) {
+      bleService.sendExerciseData({
+        exerciseType: this.exerciseType,
+        count: this.currentCount,
+        duration: exerciseStateMachine.getActiveDuration(),
+        heartRate: this.heartRate,
+        currentSet: this.currentSet,
+        totalSets: this.totalSets
+      });
+    }
+  },
+
+  updateWaveform() {
+    var W = constants.WAVEFORM;
+    var recent = motion.getRecentValues(W.BAR_COUNT);
+    if (recent && recent.length > 0) {
+      var wave = [];
+      for (var i = 0; i < recent.length; i++) {
+        var h = Math.max(W.HEIGHT_MIN, Math.min(W.HEIGHT_MAX, Math.round(recent[i] * W.HEIGHT_SCALE)));
+        wave.push(h);
+      }
+      while (wave.length < W.BAR_COUNT) { wave.push(W.DEFAULT_HEIGHT); }
+      this.waveData = wave;
+    }
+  },
+
+  // === 组间休息 ===
+  startRestPeriod() {
+    var self = this;
+    this.restCountdown = this.restDuration;
+    this.showRestOverlay = true;
+    this.statusClass = 'resting';
+    this.statusText = '休息中';
+    this.aiSuggestion = '第' + this.currentSet + '组完成，休息一下';
+    exerciseStateMachine.pause();
+    sensorManager.setActive(false);
+
+    if (vibratorService) {
+      try { vibratorService.vibrate({ duration: 200 }); } catch (e) {}
+    }
+
+    this._restTimer = setInterval(function() {
+      self.restCountdown--;
+      if (self.restCountdown <= 3 && self.restCountdown > 0) {
+        if (vibratorService) {
+          try { vibratorService.vibrate({ duration: 100 }); } catch (e) {}
+        }
+      }
+      if (self.restCountdown <= 0) {
+        self.endRestPeriod();
+      }
+    }, 1000);
+  },
+
+  endRestPeriod() {
+    if (this._restTimer) {
+      clearInterval(this._restTimer);
+      this._restTimer = null;
+    }
+    this.showRestOverlay = false;
+    this.currentSet++;
+    this.currentCount = 0;
+    this.ringSize = 0;
+    this.aiSuggestion = '';
+    motion.reset();
+    sensorManager.setActive(true);
+    exerciseStateMachine.resume();
+    this.isPaused = false;
+    this.statusClass = 'active';
+    this.statusText = this.isRunningMode ? '跑步中' : '运动中';
+    this.startTimer();
+    this.resetIdleTimer();
+
+    if (vibratorService) {
+      try { vibratorService.vibrate({ duration: 300 }); } catch (e) {}
+    }
+  },
+
+  onSkipRest() {
+    this.endRestPeriod();
+  },
+
+  // === 完成运动 ===
+  finishExercise() {
+    if (this._finishing) return;
+    this._finishing = true;
+
+    exerciseStateMachine.finish();
+    this._isActive = false;
+    this.stopAll();
+
+    var totalCount = this.isRunningMode ? Math.round(this._runningDistance * 100) : motion.getCount();
+    var activeDuration = exerciseStateMachine.getActiveDuration();
+    var score = this.calculateScore(totalCount, activeDuration, this.getAvgHeartRate());
+
+    this.showCelebration = true;
+    this.celebrationText = '训练完成！';
+    this.celebrationScore = score;
+
+    if (vibratorService) {
+      try { vibratorService.vibrate({ duration: 500 }); } catch (e) {}
+    }
+
+    var self = this;
+    var blinkCount = 0;
+    this._celebTimer = setInterval(function() {
+      blinkCount++;
+      self.celebrationBlink = !self.celebrationBlink;
+      if (blinkCount >= 6) {
+        if (self._celebTimer) {
+          clearInterval(self._celebTimer);
+          self._celebTimer = null;
+        }
+        self._navigateToResult(totalCount, activeDuration, score);
+      }
+    }, 300);
+  },
+
+  _navigateToResult(totalCount, activeDuration, score) {
+    try {
+      var avgHR = this.getAvgHeartRate();
+      var maxHR = this.getMaxHeartRate();
+      var calories = this.isRunningMode ? this.calories : utils.estimateCalories(this.exerciseType, totalCount, activeDuration);
+
+      var record = {
+        type: this.exerciseType,
+        typeName: this.exerciseName,
+        count: totalCount,
+        duration: activeDuration,
+        avgHeartRate: avgHR,
+        maxHeartRate: maxHR,
+        calories: calories,
+        score: score,
+        pauseCount: exerciseStateMachine.getPauseCount(),
+        timestamp: Date.now()
+      };
+
+      try {
+        storage.saveRecord(record);
+        dataStore.incrementSteps(totalCount);
+      } catch (e) {
+        logger.error('保存记录失败: ' + e.message);
+      }
+
+      router.replace({
+        uri: '/pages/ai_result',
+        params: {
+          exerciseType: this.exerciseType,
+          exerciseName: this.exerciseName,
+          count: totalCount,
+          duration: activeDuration,
+          avgHeartRate: avgHR,
+          maxHeartRate: maxHR,
+          calories: calories,
+          score: score
+        }
+      });
+    } catch (e) {
+      logger.error('_navigateToResult error: ' + e.message);
+      try { router.replace({ uri: '/pages/clock' }); } catch (e2) {}
+    }
+  },
+
+  // === BLE ===
+  connectBLE() {
+    var self = this;
+    bleService.connect('xiaozhi-ai-device').then(function() {
+      logger.info('小智AI已连接');
+      self.aiSuggestion = '小智AI已连接';
+    }).catch(function(err) {
+      logger.warn('小智AI连接失败: ' + (err.message || err));
+      self.aiSuggestion = 'AI离线模式';
+    });
+  },
+
+  // === 电源管理 ===
+  _onPowerChanged(data) {
+    if (!data) return;
+    if (data.state === 'standby') {
+      this._isActive = false;
+      if (!this.isReady && !this.isPaused) {
+        this.pauseExercise();
+      }
+    } else if (data.state === 'active') {
+      this._isActive = true;
+    }
+  },
+
+  // === 评分 ===
+  getAvgHeartRate() {
+    if (this._heartRateHistory.length === 0) return this.heartRate;
+    var sum = 0;
+    for (var i = 0; i < this._heartRateHistory.length; i++) {
+      sum += this._heartRateHistory[i];
+    }
+    return Math.round(sum / this._heartRateHistory.length);
+  },
+
+  getMaxHeartRate() {
+    if (this._heartRateHistory.length === 0) return this.heartRate;
+    var max = 0;
+    for (var i = 0; i < this._heartRateHistory.length; i++) {
+      if (this._heartRateHistory[i] > max) {
+        max = this._heartRateHistory[i];
+      }
+    }
+    return max;
+  },
+
+  calculateScore(count, duration, avgHR) {
+    var S = constants.SCORE;
+    var score = S.BASE;
+    if (!this.isRunningMode) {
+      var targetTotal = this.targetCount * this.totalSets;
+      var completion = targetTotal > 0 ? Math.min(count / targetTotal, 1.0) : 0;
+      score += Math.round(completion * S.COMPLETION_MAX);
+    } else {
+      score += Math.round(Math.min(duration / 1800, 1.0) * S.COMPLETION_MAX);
+    }
+    if (duration > 0 && count > 0) {
+      var speed = count / duration;
+      if (speed > S.SPEED_OPTIMAL_MIN && speed < S.SPEED_OPTIMAL_MAX) {
+        score += S.SPEED_BONUS_OPTIMAL;
+      } else if (speed >= S.SPEED_OPTIMAL_MAX) {
+        score += S.SPEED_BONUS_FAST;
+      } else {
+        score += S.SPEED_BONUS_SLOW;
+      }
+    }
+    if (avgHR >= S.HR_OPTIMAL_MIN && avgHR <= S.HR_OPTIMAL_MAX) {
+      score += S.HR_BONUS_OPTIMAL;
+    } else if (avgHR > S.HR_ELEVATED_THRESHOLD) {
+      score += S.HR_BONUS_ELEVATED;
+    }
+    return Math.max(S.MIN, Math.min(S.MAX, score));
+  },
+
+  // === 清理 ===
+  stopAll() {
+    if (this._mainTimer) { clearInterval(this._mainTimer); this._mainTimer = null; }
+    if (this._restTimer) { clearInterval(this._restTimer); this._restTimer = null; }
+    if (this._idleTimer) { clearTimeout(this._idleTimer); this._idleTimer = null; }
+    if (this._celebTimer) { clearInterval(this._celebTimer); this._celebTimer = null; }
+    if (this._unsubscribeAccel) { this._unsubscribeAccel(); this._unsubscribeAccel = null; }
+    if (this._unsubscribeHR) { this._unsubscribeHR(); this._unsubscribeHR = null; }
+  }
+}
+</script>
+
+<style>
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 24px 24px 24px; border-radius: 24px; }
+.top-bar { flex-direction: row; align-items: center; justify-content: center; margin-bottom: 2px; width: 100%; }
+.back-btn { width: 30px; height: 30px; border-radius: 15px; background-color: #222; align-items: center; justify-content: center; margin-right: 8px; }
+.back-btn-text { color: #fff; font-size: 20px; }
+.exercise-icon-top { font-size: 18px; margin-right: 6px; }
+.exercise-name-top { color: #fff; font-size: 18px; font-weight: bold; }
+.timer-area { align-items: center; margin-bottom: 2px; }
+.timer-text { color: #00E676; font-size: 36px; font-weight: bold; }
+.status-row { flex-direction: row; align-items: center; margin-bottom: 8px; }
+.status-dot-active { color: #00E676; font-size: 12px; margin-right: 6px; }
+.status-active { color: #00E676; font-size: 14px; font-weight: bold; }
+.status-dot-paused { color: #FFA500; font-size: 12px; margin-right: 6px; }
+.status-paused { color: #FFA500; font-size: 14px; font-weight: bold; }
+.status-dot-resting { color: #FFD700; font-size: 12px; margin-right: 6px; }
+.status-resting { color: #FFD700; font-size: 14px; font-weight: bold; }
+.status-dot-ready { color: #448AFF; font-size: 12px; margin-right: 6px; }
+.status-ready { color: #448AFF; font-size: 14px; font-weight: bold; }
+
+.ready-area { flex: 1; flex-direction: column; align-items: center; justify-content: center; }
+.ready-icon { font-size: 48px; }
+.start-btn { width: 140px; height: 50px; border-radius: 25px; background-color: #00E676; align-items: center; justify-content: center; margin-top: 20px; }
+.start-btn-text { color: #000; font-size: 18px; font-weight: bold; }
+.ready-hint { color: #666; font-size: 12px; margin-top: 12px; }
+
+.count-area { flex-direction: column; align-items: center; margin: 4px 0px 6px 0px; }
+.ring-progress { width: 110px; height: 110px; align-items: center; justify-content: center; }
+.ring-bg { position: absolute; width: 110px; height: 110px; border-radius: 55px; border-width: 3px; border-color: #222; }
+.ring-fill { position: absolute; border-radius: 55px; border-width: 3px; border-color: #00E676; border-bottom-color: transparent; border-right-color: transparent; transform: rotate(45deg); }
+.ring-inner { flex-direction: column; align-items: center; justify-content: center; }
+.count-value { color: #00E676; font-size: 36px; font-weight: bold; }
+.count-target { color: #4a8a4a; font-size: 16px; }
+.set-info { color: #888; font-size: 12px; margin-top: 4px; }
+.run-distance { color: #00E676; font-size: 32px; font-weight: bold; }
+.run-unit { color: #888; font-size: 12px; }
+.run-stats { flex-direction: row; margin-top: 8px; }
+.run-stat { flex-direction: column; align-items: center; margin: 0px 16px; }
+.run-stat-value { color: #fff; font-size: 18px; font-weight: bold; }
+.run-stat-label { color: #888; font-size: 11px; }
+
+.info-row { flex-direction: row; align-items: center; justify-content: center; margin: 4px 0px 6px 0px; }
+.info-item { flex-direction: row; align-items: center; padding: 0px 14px; }
+.info-label { color: #888; font-size: 12px; margin-right: 4px; }
+.info-score { color: #FFD700; font-size: 18px; font-weight: bold; }
+.info-icon-hr { color: #FF263C; font-size: 14px; margin-right: 4px; }
+.info-value-hr { color: #FF263C; font-size: 18px; font-weight: bold; }
+.info-unit { color: #888; font-size: 10px; margin-left: 2px; }
+.info-divider { width: 1px; height: 20px; background-color: #333; }
+
+.bottom-area { flex-direction: column; align-items: center; margin-top: auto; width: 100%; }
+.waveform { flex-direction: row; align-items: flex-end; height: 24px; margin-bottom: 6px; }
+.wave-bar { width: 5px; background-color: #00E676; border-radius: 2px; margin: 0px 1px; min-height: 3px; }
+.ai-suggestion { color: #FFD700; font-size: 12px; margin-bottom: 6px; text-align: center; }
+
+.action-buttons { flex-direction: row; justify-content: center; margin-bottom: 6px; }
+.action-btn { flex-direction: column; align-items: center; justify-content: center; width: 70px; height: 50px; border-radius: 14px; margin: 0px 8px; }
+.action-btn-pause { background-color: #1a2a1a; border-width: 1px; border-color: #00E676; }
+.action-btn-stop { background-color: #2a1a1a; border-width: 1px; border-color: #FF263C; }
+.action-btn-back { background-color: #1a1a2a; border-width: 1px; border-color: #448AFF; }
+.action-btn-icon { font-size: 18px; }
+.action-btn-pause .action-btn-icon { color: #00E676; }
+.action-btn-stop .action-btn-icon { color: #FF263C; }
+.action-btn-back .action-btn-icon { color: #448AFF; }
+.action-btn-text { font-size: 10px; margin-top: 2px; }
+.action-btn-pause .action-btn-text { color: #00E676; }
+.action-btn-stop .action-btn-text { color: #FF263C; }
+.action-btn-back .action-btn-text { color: #448AFF; }
+.swipe-hint { color: #444; font-size: 10px; }
+
+.confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); flex-direction: column; align-items: center; justify-content: center; }
+.confirm-dialog { width: 240px; background-color: #1a1a1a; border-radius: 18px; padding: 20px; flex-direction: column; align-items: center; border-width: 1px; border-color: #333; }
+.confirm-title { color: #fff; font-size: 20px; font-weight: bold; margin-bottom: 6px; }
+.confirm-desc { color: #888; font-size: 13px; margin-bottom: 16px; }
+.confirm-buttons { flex-direction: row; justify-content: center; }
+.confirm-btn-cancel { background-color: #333; border-radius: 10px; padding: 8px 24px; margin-right: 10px; }
+.btn-text-cancel { color: #fff; font-size: 14px; }
+.confirm-btn-ok { background-color: #00E676; border-radius: 10px; padding: 8px 24px; }
+.confirm-btn-danger { background-color: #FF263C; }
+.btn-text-ok { color: #000; font-size: 14px; font-weight: bold; }
+
+.rest-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; }
+.rest-content { flex-direction: column; align-items: center; }
+.rest-title { color: #FFD700; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+.rest-countdown { color: #fff; font-size: 64px; font-weight: bold; }
+.rest-hint { color: #888; font-size: 14px; margin-top: 6px; margin-bottom: 20px; }
+.rest-skip-btn { background-color: #333; border-radius: 10px; padding: 8px 20px; }
+.rest-skip-text { color: #fff; font-size: 13px; }
+
+.celebration-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; }
+.celebration-content { flex-direction: column; align-items: center; }
+.celebration-icon { font-size: 56px; margin-bottom: 12px; }
+.celebration-text { color: #FFD700; font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+.celebration-score { color: #00E676; font-size: 42px; font-weight: bold; margin-bottom: 12px; }
+.celebration-hint { color: #888; font-size: 13px; }
+
+.history-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; flex-direction: column; padding: 36px 20px 20px 20px; border-radius: 24px; }
+.history-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.history-title { color: #fff; font-size: 18px; font-weight: bold; }
+.history-close { width: 28px; height: 28px; border-radius: 14px; background-color: #333; align-items: center; justify-content: center; }
+.history-close-text { color: #fff; font-size: 14px; }
+.history-list { flex-direction: column; flex: 1; }
+.history-item { flex-direction: row; align-items: center; padding: 10px 12px; margin-bottom: 6px; background-color: #111; border-radius: 10px; }
+.history-time { color: #888; font-size: 12px; flex: 1; }
+.history-count { color: #fff; font-size: 14px; margin-right: 12px; }
+.history-score { color: #FFD700; font-size: 14px; font-weight: bold; }
+.history-empty { color: #666; font-size: 14px; text-align: center; margin-top: 40px; }
+
+.standby-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; }
+.standby-content { flex-direction: column; align-items: center; }
+.standby-icon { font-size: 48px; margin-bottom: 12px; }
+.standby-text { color: #fff; font-size: 18px; font-weight: bold; margin-bottom: 4px; }
+.standby-hint { color: #888; font-size: 14px; margin-bottom: 20px; }
+.standby-btn { background-color: #00E676; border-radius: 20px; padding: 10px 28px; }
+.standby-btn-text { color: #000; font-size: 16px; font-weight: bold; }
+</style>

@@ -1,0 +1,248 @@
+<template>
+  <div class="container" onclick="onTap" onswipe="onSwipe">
+    <div class="time-area">
+      <text class="time-text">{{ currentTime }}</text>
+      <text class="date-text">{{ currentDate }}</text>
+    </div>
+
+    <div class="stats-area">
+      <div class="stat-item">
+        <text class="stat-icon">👣</text>
+        <text class="stat-value">{{ todaySteps }}</text>
+        <text class="stat-label">步</text>
+      </div>
+      <div class="stat-item">
+        <text class="stat-icon">♥</text>
+        <text class="stat-value">{{ heartRate }}</text>
+        <text class="stat-label">bpm</text>
+      </div>
+    </div>
+
+    <div class="hint-area">
+      <div class="enter-btn" onclick="onEnterFunction">
+        <text class="enter-btn-text">进入功能 ›</text>
+      </div>
+    </div>
+
+    <div class="power-indicator" if="{{ showPowerIndicator }}">
+      <text class="power-text">{{ powerStateText }}</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+
+var eventBus = require('../../common/eventBus.js');
+var powerManager = require('../../common/powerManager.js');
+var dataStore = require('../../common/dataStore.js');
+var logger = require('../../common/logger.js');
+
+export default {
+  private: {
+    currentTime: '00:00',
+    currentDate: '',
+    todaySteps: 0,
+    heartRate: 72,
+    showPowerIndicator: false,
+    powerStateText: '',
+    _timer: null,
+    _unsubscribeHR: null,
+    _unsubscribeSteps: null
+  },
+
+  onReady() {
+    logger.info('Clock page ready');
+    this.initTime();
+    this.startTimer();
+    this.initData();
+    this.initPowerManager();
+  },
+
+  onDestroy() {
+    this.stopTimer();
+    if (this._unsubscribeHR) this._unsubscribeHR();
+    if (this._unsubscribeSteps) this._unsubscribeSteps();
+  },
+
+  initTime() {
+    this.updateTime();
+    this.updateDate();
+  },
+
+  startTimer() {
+    var self = this;
+    this._timer = setInterval(function() {
+      self.updateTime();
+      eventBus.emit(eventBus.EVENTS.TIMER_TICK);
+    }, 1000);
+  },
+
+  stopTimer() {
+    if (this._timer) {
+      clearInterval(this._timer);
+      this._timer = null;
+    }
+  },
+
+  updateTime() {
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    this.currentTime = (h < 10 ? '0' + h : '' + h) + ':' + (m < 10 ? '0' + m : '' + m);
+  },
+
+  updateDate() {
+    var now = new Date();
+    var weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var weekDay = weekDays[now.getDay()];
+    this.currentDate = month + '月' + day + '日 周' + weekDay;
+  },
+
+  initData() {
+    var stats = dataStore.getTodayStats();
+    this.todaySteps = stats.count;
+    this.heartRate = dataStore.get('heartRate') || 72;
+
+    var self = this;
+    this._unsubscribeHR = dataStore.subscribe('heartRate', function(val) {
+      self.heartRate = val;
+    });
+    this._unsubscribeSteps = dataStore.subscribe('todaySteps', function(val) {
+      self.todaySteps = val;
+    });
+  },
+
+  initPowerManager() {
+    var self = this;
+    eventBus.on(eventBus.EVENTS.POWER_STATE_CHANGED, function(data) {
+      if (data.state === powerManager.STATE.IDLE) {
+        self.showPowerIndicator = true;
+        self.powerStateText = '省电模式';
+      } else if (data.state === powerManager.STATE.STANDBY) {
+        self.showPowerIndicator = true;
+        self.powerStateText = '待机中...';
+      } else if (data.state === powerManager.STATE.ACTIVE) {
+        self.showPowerIndicator = false;
+      }
+    });
+  },
+
+  onTap() {
+    powerManager.resetTimer();
+    eventBus.emit(eventBus.EVENTS.TOUCH_TAP);
+  },
+
+  onEnterFunction() {
+    router.push({ uri: '/pages/exercise_select' });
+  },
+
+  onSwipe(evt) {
+    powerManager.resetTimer();
+    var direction = evt.direction;
+    if (direction === 'left') {
+      router.push({ uri: '/pages/exercise_select' });
+    }
+  }
+}
+</script>
+
+<style>
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 50px 40px 40px 40px;
+  border-radius: 50%;
+}
+
+.top-area {
+  flex-direction: column;
+  align-items: center;
+}
+
+.time-area {
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.time-text {
+  color: #ffffff;
+  font-size: 72px;
+  font-weight: bold;
+}
+
+.date-text {
+  color: #888888;
+  font-size: 18px;
+  margin-top: 8px;
+}
+
+.stats-area {
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+.stat-item {
+  flex-direction: column;
+  align-items: center;
+  padding: 0px 30px;
+}
+
+.stat-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  color: #00E676;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.stat-label {
+  color: #888888;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.hint-area {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.enter-btn {
+  background-color: #1a2a1a;
+  border-width: 1px;
+  border-color: #00E676;
+  border-radius: 20px;
+  padding: 8px 24px;
+}
+
+.enter-btn-text {
+  color: #00E676;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.power-indicator {
+  flex-direction: row;
+  align-items: center;
+  background-color: rgba(255, 165, 0, 0.3);
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin-bottom: 10px;
+}
+
+.power-text {
+  color: #FFA500;
+  font-size: 12px;
+}
+</style>

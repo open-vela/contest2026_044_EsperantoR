@@ -1,0 +1,129 @@
+<template>
+  <div class="container">
+    <nav-bar title="训练完成"></nav-bar>
+
+    <div class="score-area">
+      <div class="score-ring">
+        <text class="score-value">{{ score }}</text>
+        <text class="score-label">分</text>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-row">
+        <text class="stat-label">运动类型</text>
+        <text class="stat-val">{{ exerciseName }}</text>
+      </div>
+      <div class="stat-row">
+        <text class="stat-label">完成次数</text>
+        <text class="stat-val">{{ count }} 次</text>
+      </div>
+      <div class="stat-row">
+        <text class="stat-label">运动时长</text>
+        <text class="stat-val">{{ durationText }}</text>
+      </div>
+      <div class="stat-row">
+        <text class="stat-label">平均心率</text>
+        <text class="stat-val">{{ avgHeartRate }} bpm</text>
+      </div>
+      <div class="stat-row">
+        <text class="stat-label">最高心率</text>
+        <text class="stat-val">{{ maxHeartRate }} bpm</text>
+      </div>
+      <div class="stat-row">
+        <text class="stat-label">消耗热量</text>
+        <text class="stat-val">{{ calories }} 千卡</text>
+      </div>
+    </div>
+
+    <div class="bottom-hint">
+      <text class="swipe-hint">双右滑返回表盘</text>
+    </div>
+    <div class="exit-hint" if="{{ showExitHint }}">
+      <text class="exit-hint-text">再滑一次返回</text>
+    </div>
+  </div>
+</template>
+
+<script>
+var utils = require('../../common/utils.js');
+var logger = require('../../common/logger.js');
+import NavBar from '../../components/nav-bar.ux';
+
+export default {
+  components: { NavBar },
+  private: {
+    exerciseType: 'squat',
+    exerciseName: '深蹲',
+    count: 0,
+    duration: 0,
+    durationText: '00:00',
+    avgHeartRate: 0,
+    maxHeartRate: 0,
+    calories: 0,
+    score: 0,
+    showExitHint: false,
+    _lastSwipeTime: 0
+  },
+
+  onReady() {
+    logger.info('ai_result page ready');
+    this.parseParams();
+  },
+
+  onInit() {
+    this.parseParams();
+  },
+
+  parseParams() {
+    try {
+      if (this.count) this.count = parseInt(this.count) || 0;
+      if (this.duration) {
+        this.duration = parseInt(this.duration) || 0;
+        this.durationText = utils.formatDuration(this.duration);
+      }
+      if (this.avgHeartRate) this.avgHeartRate = parseInt(this.avgHeartRate) || 0;
+      if (this.maxHeartRate) this.maxHeartRate = parseInt(this.maxHeartRate) || 0;
+      if (this.calories) this.calories = parseFloat(this.calories) || 0;
+      if (this.score) this.score = parseInt(this.score) || 0;
+    } catch (e) {
+      logger.error('ai_result parseParams error: ' + e.message);
+    }
+  },
+
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        try {
+          require('@system.router').replace({ uri: '/pages/clock' });
+        } catch (e) {
+          logger.error('router error: ' + e.message);
+          require('@system.router').back();
+        }
+        return;
+      }
+      this._lastSwipeTime = now;
+      this.showExitHint = true;
+      var self = this;
+      setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 24px 24px 24px; border-radius: 24px; }
+.score-area { align-items: center; margin-bottom: 16px; }
+.score-ring { width: 100px; height: 100px; border-radius: 50px; border-width: 3px; border-color: #FFD700; flex-direction: column; align-items: center; justify-content: center; background-color: #1a1a05; }
+.score-value { color: #FFD700; font-size: 34px; font-weight: bold; }
+.score-label { color: #FFD700; font-size: 12px; }
+.stats-grid { flex-direction: column; width: 100%; }
+.stat-row { flex-direction: row; justify-content: space-between; padding: 8px 14px; border-bottom-width: 1px; border-bottom-color: #222; }
+.stat-label { color: #888; font-size: 14px; }
+.stat-val { color: #fff; font-size: 14px; font-weight: bold; }
+.bottom-hint { align-items: center; margin-top: auto; }
+.swipe-hint { color: #666; font-size: 12px; }
+.exit-hint { position: fixed; bottom: 50px; left: 0; width: 100%; align-items: center; }
+.exit-hint-text { background-color: rgba(255,38,60,0.8); color: #fff; font-size: 11px; padding: 5px 14px; border-radius: 10px; }
+</style>

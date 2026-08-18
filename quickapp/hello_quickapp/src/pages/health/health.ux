@@ -1,0 +1,114 @@
+<template>
+  <div class="container">
+    <nav-bar title="AI健康评估"></nav-bar>
+    <div class="content">
+      <div class="score-ring">
+        <text class="score-value">{{ healthScore }}</text>
+        <text class="score-label">健康指数</text>
+      </div>
+      <div class="metrics">
+        <div class="metric-row">
+          <text class="metric-icon">❤️</text>
+          <text class="metric-name">心率</text>
+          <text class="metric-value">{{ heartRate }} bpm</text>
+          <text class="metric-status" style="color: {{ hrStatus.color }}">{{ hrStatus.text }}</text>
+        </div>
+        <div class="metric-row">
+          <text class="metric-icon">👣</text>
+          <text class="metric-name">步数</text>
+          <text class="metric-value">{{ steps }}</text>
+          <text class="metric-status" style="color: {{ stepsStatus.color }}">{{ stepsStatus.text }}</text>
+        </div>
+        <div class="metric-row">
+          <text class="metric-icon">🔥</text>
+          <text class="metric-name">卡路里</text>
+          <text class="metric-value">{{ calories }} 千卡</text>
+          <text class="metric-status" style="color: {{ calStatus.color }}">{{ calStatus.text }}</text>
+        </div>
+        <div class="metric-row">
+          <text class="metric-icon">🏋️</text>
+          <text class="metric-name">训练</text>
+          <text class="metric-value">{{ trainCount }} 次</text>
+          <text class="metric-status" style="color: {{ trainStatus.color }}">{{ trainStatus.text }}</text>
+        </div>
+      </div>
+      <div class="ai-summary">
+        <text class="ai-icon">🤖</text>
+        <text class="ai-text">{{ aiSummary }}</text>
+      </div>
+    </div>
+    <div class="bottom-hint"><text class="swipe-hint">双右滑返回</text></div>
+    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出</text></div>
+  </div>
+</template>
+
+<script>
+var dataStore = require('../../common/dataStore.js');
+var storage = require('../../common/storage.js');
+var logger = require('../../common/logger.js');
+import NavBar from '../../components/nav-bar.ux';
+
+export default {
+  components: { NavBar },
+  private: {
+    healthScore: 85, heartRate: 72, steps: 0, calories: 0, trainCount: 0,
+    hrStatus: { text: '正常', color: '#00E676' },
+    stepsStatus: { text: '良好', color: '#00E676' },
+    calStatus: { text: '一般', color: '#FFD700' },
+    trainStatus: { text: '活跃', color: '#00E676' },
+    aiSummary: '根据您的运动数据分析，整体健康状态良好，建议保持每天30分钟的运动量。',
+    showExitHint: false, _lastSwipeTime: 0
+  },
+  onReady() {
+    logger.info('health page ready');
+    var stats = dataStore.getTodayStats();
+    this.steps = stats.count;
+    this.calories = stats.calories || 0;
+    this.heartRate = dataStore.get('heartRate') || 72;
+    this.trainCount = storage.getRecords(100).length;
+    this.evaluate();
+  },
+  evaluate() {
+    if (this.heartRate < 60) this.hrStatus = { text: '偏低', color: '#FFA500' };
+    else if (this.heartRate > 100) this.hrStatus = { text: '偏高', color: '#FF263C' };
+    if (this.steps < 3000) this.stepsStatus = { text: '不足', color: '#FF263C' };
+    else if (this.steps < 6000) this.stepsStatus = { text: '一般', color: '#FFD700' };
+    if (this.calories > 200) this.calStatus = { text: '优秀', color: '#00E676' };
+    if (this.trainCount >= 3) this.trainStatus = { text: '优秀', color: '#00E676' };
+    var score = 70;
+    if (this.heartRate >= 60 && this.heartRate <= 100) score += 10;
+    if (this.steps >= 6000) score += 10;
+    if (this.trainCount >= 3) score += 10;
+    this.healthScore = Math.min(100, score);
+  },
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) { require('@system.router').back(); return; }
+      this._lastSwipeTime = now; this.showExitHint = true;
+      var self = this; setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 20px; border-radius: 24px; }
+.content { flex: 1; flex-direction: column; align-items: center; width: 100%; }
+.score-ring { width: 100px; height: 100px; border-radius: 50px; border-width: 3px; border-color: #00E676; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; }
+.score-value { color: #00E676; font-size: 32px; font-weight: bold; }
+.score-label { color: #888; font-size: 10px; }
+.metrics { width: 100%; flex-direction: column; }
+.metric-row { flex-direction: row; align-items: center; padding: 8px 12px; margin-bottom: 4px; background-color: #111; border-radius: 10px; }
+.metric-icon { font-size: 16px; margin-right: 8px; }
+.metric-name { color: #fff; font-size: 13px; flex: 1; }
+.metric-value { color: #fff; font-size: 13px; font-weight: bold; margin-right: 8px; }
+.metric-status { font-size: 11px; }
+.ai-summary { flex-direction: row; align-items: flex-start; padding: 10px; background-color: #111; border-radius: 10px; margin-top: 10px; width: 100%; }
+.ai-icon { font-size: 18px; margin-right: 8px; }
+.ai-text { color: #888; font-size: 12px; flex: 1; line-height: 18px; }
+.bottom-hint { align-items: center; margin-top: auto; }
+.swipe-hint { color: #666; font-size: 12px; }
+.exit-hint { position: fixed; bottom: 60px; left: 0; width: 100%; align-items: center; }
+.exit-hint-text { background-color: rgba(255,38,60,0.8); color: #fff; font-size: 12px; padding: 6px 16px; border-radius: 12px; }
+</style>

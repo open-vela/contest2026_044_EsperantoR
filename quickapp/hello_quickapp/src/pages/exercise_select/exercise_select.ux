@@ -1,0 +1,225 @@
+<template>
+  <div class="container">
+    <nav-bar title="动感教练"></nav-bar>
+
+    <!-- 上箭头 -->
+    <div class="arrow-btn" onclick="onScrollUp">
+      <text class="arrow-text">▲</text>
+    </div>
+
+    <!-- 功能列表 -->
+    <div class="scroll-viewport">
+      <div class="scroll-item {{ $item._isSelected ? 'scroll-item-selected' : '' }}"
+           for="{{ visibleItems }}"
+           onclick="onSelect($idx)">
+        <text class="scroll-icon">{{ $item.icon }}</text>
+        <div class="scroll-info">
+          <text class="scroll-name">{{ $item.name }}</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 下箭头 -->
+    <div class="arrow-btn" onclick="onScrollDown">
+      <text class="arrow-text">▼</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+import NavBar from '../../components/nav-bar.ux';
+
+var utils = require('../../common/utils.js');
+var storage = require('../../common/storage.js');
+var logger = require('../../common/logger.js');
+
+var allMenuItems = [
+  { key: 'exercise', icon: '🏋️', name: '运动选择', desc: '开始训练', page: null },
+  { key: 'history', icon: '📊', name: '历史记录', desc: '查看训练记录', page: '/pages/history' },
+  { key: 'compass', icon: '🧭', name: '罗盘', desc: '户外方位', page: '/pages/compass' },
+  { key: 'weather', icon: '🌤️', name: '天气', desc: '天气信息', page: '/pages/weather' },
+  { key: 'altitude', icon: '⛰️', name: '海拔', desc: '海拔高度', page: '/pages/altitude' },
+  { key: 'timer', icon: '⏱️', name: '计时器', desc: '倒计时/秒表', page: '/pages/timer' },
+  { key: 'music', icon: '🎵', name: '音乐', desc: '音乐控制', page: '/pages/music' },
+  { key: 'health', icon: '❤️', name: 'AI健康评估', desc: '健康状态分析', page: '/pages/health' },
+  { key: 'xiaozhi', icon: '🤖', name: '小智AI', desc: '语音助手', page: '/pages/xiaozhi' },
+  { key: 'settings', icon: '⚙️', name: '系统设置', desc: '亮度/振动/连接', page: '/pages/settings' }
+];
+
+var VISIBLE_COUNT = 5;
+var ITEM_HEIGHT = 68;
+
+export default {
+  components: { NavBar },
+  private: {
+    allItems: allMenuItems,
+    visibleItems: [],
+    selectedIndex: 0,
+    showExitHint: false,
+    _lastSwipeTime: 0
+  },
+
+  onReady() {
+    logger.info('function hub ready');
+    this.updateHistoryCount();
+    this.updateVisibleItems();
+  },
+
+  onDestroy() {
+  },
+
+  onScrollUp() {
+    if (this.selectedIndex > 0) {
+      this.selectedIndex--;
+      this.updateVisibleItems();
+    }
+  },
+
+  onScrollDown() {
+    if (this.selectedIndex < this.allItems.length - 1) {
+      this.selectedIndex++;
+      this.updateVisibleItems();
+    }
+  },
+
+  updateHistoryCount() {
+    try {
+      var records = storage.getRecords(1);
+      if (records && records.length > 0) {
+        this.allItems[1].desc = '最近' + Math.min(records.length, 10) + '次';
+      }
+    } catch (e) {
+      logger.warn('updateHistoryCount error');
+    }
+  },
+
+  updateVisibleItems() {
+    var total = this.allItems.length;
+    var startIndex = Math.max(0, Math.min(this.selectedIndex - 2, total - VISIBLE_COUNT));
+    var endIndex = Math.min(startIndex + VISIBLE_COUNT, total);
+    var visible = [];
+    for (var i = startIndex; i < endIndex; i++) {
+      var item = this.allItems[i];
+      item._globalIndex = i;
+      item._isSelected = (i === this.selectedIndex);
+      visible.push(item);
+    }
+    this.visibleItems = visible;
+  },
+
+  onSelect(index) {
+    var item = this.visibleItems[index];
+    if (!item) return;
+    this.selectedIndex = item._globalIndex;
+    this.updateVisibleItems();
+
+    if (item.key === 'exercise') {
+      router.push({ uri: '/pages/exercise_list' });
+    } else if (item.key === 'settings') {
+      router.push({ uri: '/pages/settings' });
+    } else if (item.page) {
+      router.push({ uri: item.page });
+    }
+  },
+
+  onPageSwipe(evt) {
+    var now = Date.now();
+    var direction = evt.direction;
+    var total = this.allItems.length;
+
+    if (direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        router.back();
+        return;
+      }
+      this._lastSwipeTime = now;
+      this.showExitHint = true;
+      var self = this;
+      setTimeout(function() {
+        self.showExitHint = false;
+      }, 1000);
+      return;
+    }
+
+    if (direction === 'up') {
+      if (this.selectedIndex < total - 1) {
+        this.selectedIndex++;
+        this.updateVisibleItems();
+      }
+    } else if (direction === 'down') {
+      if (this.selectedIndex > 0) {
+        this.selectedIndex--;
+        this.updateVisibleItems();
+      }
+    }
+  }
+}
+</script>
+
+<style>
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 16px 16px 16px;
+  border-radius: 24px;
+}
+
+.arrow-btn {
+  width: 100%;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.arrow-text {
+  color: #00E676;
+  font-size: 16px;
+}
+
+.scroll-viewport {
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.scroll-item {
+  flex-direction: row;
+  align-items: center;
+  padding: 12px 14px;
+  height: 62px;
+  margin-bottom: 6px;
+  background-color: #111111;
+  border-radius: 14px;
+  border-width: 1px;
+  border-color: #222222;
+}
+
+.scroll-item-selected {
+  background-color: #1a2a1a;
+  border-color: #00E676;
+}
+
+.scroll-icon {
+  font-size: 22px;
+  margin-right: 10px;
+}
+
+.scroll-info {
+  flex: 1;
+  flex-direction: column;
+}
+
+.scroll-name {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: bold;
+}
+</style>

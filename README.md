@@ -1,148 +1,144 @@
-# contest2026_044_EsperantoR
+# 动感教练 — 基于多传感器融合的可穿戴 AI 运动教练
 
-👋 欢迎参加 **2026 首届 openvela AI 硬件开发者大赛**！
+## 一、作品简介
 
-这是组委会为你的队伍创建的**专属参赛仓库**（本仓为样例/模板，队伍编号 `044`；你看到的将是你自己的 `contest2026_<编号>_<队伍名>`）。比赛期间，你的全部参赛代码、打包产物与 AI Coding 日志都提交到这里。
+「动感教练」是一款面向健身爱好者和运动初学者的智能手表应用，解决"独自锻炼时缺乏动作指导、容易姿势错误"的问题。通过手表端多传感器实时采集运动姿态，结合 AI 大模型进行动作质量评估与个性化训练指导。
 
-> 本仓既是「代码仓」，又内置了一键拉取整套 openvela 工程的 `repo` 清单（manifest）。你只需跟它打交道，**自始至终只动一个文件夹**。
+**核心亮点：**
+- 多运动类型支持（深蹲、俯卧撑、开合跳、高抬腿、跑步）
+- 实时运动数据可视化（环形进度、波形图、评分）
+- 组间休息自动倒计时
+- AI 健康评估与建议
+- 蓝牙小智AI语音助手集成
+- 完整的运动历史记录
 
----
+## 二、选题方向
 
-## 一、先读这些官方文档
+**快应用 / 手表应用创新**
 
-**通用（所有赛道必读）：**
+基于 openvela 快应用框架开发，充分利用黄山派 SF32LB52 开发板的硬件资源（六轴IMU、心率传感器、AMOLED屏幕、振动马达、BLE 5.3），打造沉浸式运动指导体验。
 
-| 文档                                                                                                                                     | 用途                                           |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [《大赛总览》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/contest_overview.md)                        | 赛道、流程、评分、资源，建议先通读             |
-| [《参赛代码提交指南》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/code_submission_guide.md)           | 仓库获取、提交流程、时间与权限（**以此为准**） |
-| [《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md) | 如何导出 AI 对话日志并提交到 `logs/`           |
+## 三、目录结构
 
-**按你的赛道选读（三选一）：**
+```
+contest2026_044_EsperantoR/
+├── quickapp/
+│   └── hello_quickapp/          # 快应用主目录
+│       ├── src/
+│       │   ├── app.ux           # 应用入口
+│       │   ├── manifest.json    # 应用配置
+│       │   ├── common/          # 公共模块
+│       │   │   ├── bleService.js      # 蓝牙通信
+│       │   │   ├── constants.js       # 全局常量
+│       │   │   ├── dataStore.js       # 数据存储
+│       │   │   ├── eventBus.js        # 事件总线
+│       │   │   ├── exerciseStateMachine.js  # 运动状态机
+│       │   │   ├── gestureRouter.js   # 手势路由
+│       │   │   ├── logger.js          # 日志
+│       │   │   ├── motion.js          # 运动检测算法
+│       │   │   ├── pageManager.js     # 页面管理
+│       │   │   ├── powerManager.js    # 电源管理
+│       │   │   ├── sensorManager.js   # 传感器管理
+│       │   │   ├── storage.js         # 本地存储
+│       │   │   └── utils.js           # 工具函数
+│       │   ├── components/      # 公共组件
+│       │   │   └── nav-bar.ux         # 导航栏组件
+│       │   └── pages/           # 页面
+│       │       ├── clock/             # 表盘（入口）
+│       │       ├── exercise_select/   # 功能层（10项功能）
+│       │       ├── exercise_list/     # 运动选择列表
+│       │       ├── exercise_active/   # 运动中（核心页面）
+│       │       ├── ai_result/         # AI训练结果
+│       │       ├── history/           # 历史记录
+│       │       ├── compass/           # 罗盘
+│       │       ├── altitude/          # 海拔
+│       │       ├── timer/             # 计时器
+│       │       ├── music/             # 音乐控制
+│       │       ├── health/            # AI健康评估
+│       │       ├── weather/           # 天气
+│       │       ├── settings/          # 系统设置
+│       │       ├── xiaozhi/           # 小智AI
+│       │       └── control_center/    # 控制中心
+│       ├── package.json
+│       └── manifest.json
+├── app/                         # 原生应用（备用）
+├── board/                       # 板级适配（备用）
+├── logs/                        # AI Coding 日志
+└── README.md                    # 本文件
+```
 
-| 赛道                  | 教程导航                                                                                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 快应用 / 手表应用创新 | [快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)                         |
-| AI 硬件产品创新       | [AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)              |
-| 新硬件适配            | [新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md) |
+## 四、功能架构
 
----
+### Layer 0: 表盘层
+- 时间、日期、步数、心率显示
+- "进入功能"按钮进入功能层
 
-## 二、第一步：拉取完整工程
+### Layer 1: 功能层（上下滚动选择）
+| 功能 | 说明 |
+|------|------|
+| 🏋️ 运动选择 | 深蹲/俯卧撑/开合跳/高抬腿/跑步 |
+| 📊 历史记录 | 最近10次运动记录 |
+| 🧭 罗盘 | 户外方位指示 |
+| 🌤️ 天气 | 天气信息与运动建议 |
+| ⛰️ 海拔 | 海拔高度显示 |
+| ⏱️ 计时器 | 秒表/倒计时 |
+| 🎵 音乐 | 音乐播放控制 |
+| ❤️ AI健康评估 | 健康指数与AI建议 |
+| 🤖 小智AI | BLE语音助手 |
+| ⚙️ 系统设置 | 亮度/振动/连接配置 |
 
-用组委会提供的命令一键拉取「openvela 全量源码 + 你的专属仓」：
+### Layer 2: 运动中交互
+- **开始按钮** → 进入运动模式
+- **暂停/继续按钮** → 控制运动状态
+- **结束按钮** → 保存数据并显示结果
+- **退出按钮** → 退出当前运动
+- **下滑** → 查看该运动类型历史记录
+- **2分钟无操作** → 自动暂停进入待机
 
+## 五、运行方式
+
+### 1. 拉取工程
 ```bash
 repo init -u https://github.com/open-vela/contest2026_044_EsperantoR \
   -b dev-ai-contest-2026 -m contest2026_044_EsperantoR.xml
 repo sync -c -j8
 ```
 
-同步后，你的整个仓库位于工作区的 `contest2026_044_EsperantoR/`，openvela 全量源码在外层（`nuttx/`、`apps/`、`packages/`、`vendor/` 等）。
+### 2. 模拟器运行
+1. 用 AIoT-IDE 打开 `quickapp/hello_quickapp` 目录
+2. 点击"编译预览"按钮
+3. 选择模拟器设备（dd 或 Vela_Virtual_Device）
+4. 等待编译完成并自动推送
 
----
+### 3. 真机运行
+1. 确保开发板已烧录 openvela 固件（支持快应用运行时）
+2. 开发板通过串口连接电脑（COM6）
+3. 在 AIoT-IDE 中选择真机设备
+4. 点击"编译预览"推送快应用
 
-## 三、第二步：在哪里写代码
+## 六、AI Coding 使用说明
 
-**只在自己的仓目录 `contest2026_044_EsperantoR/` 里开发。** 不同作品形态放在对应子目录，manifest 会通过 `<linkfile>` 把它们**软链**到 openvela 编译树该在的位置——你不用手动 copy：
+### 开发协作方式
+- **需求拆解**：通过 AI 分析设计文档，拆解为可执行的开发任务
+- **方案设计**：AI 参考 openvela 快应用框架文档，设计页面架构和交互方案
+- **编码实现**：AI 生成页面模板、样式和脚本代码
+- **调试优化**：AI 分析模拟器日志，定位并修复渲染和交互问题
 
-| 作品形态 | 你的代码放这里             | 系统自动映射到                                 |
-| -------- | -------------------------- | ---------------------------------------------- |
-| 应用     | `app/hello_app/`           | `packages/demos/contest2026_044_hello_app`     |
-| 快应用   | `quickapp/hello_quickapp/` | `packages/apps/contest2026_044_hello_quickapp` |
-| 板级适配 | `board/contest_board/`     | `vendor/openvela/boards/contest2026_044_board` |
+### 主要 AI 辅助成果
+- 15个页面的完整实现
+- 运动检测算法（滑动窗口+峰值检测）
+- 运动状态机（READY→RUNNING→PAUSED→FINISHED）
+- 蓝牙小智AI通信模块
+- 公共组件和样式提取
+- 模拟器配置与调试
 
-> 用不到的形态目录可以删掉；新增作品时按同样规则加子目录，并在 `contest2026_044_EsperantoR.xml` 里补一条 `<linkfile>` 映射即可。**生产仓库（packages/nuttx/vendor 等）零改动。**
+完整对话日志见 `logs/` 目录。
 
-建议仓库目录约定（便于评委定位）：
+## 七、技术栈
 
-```text
-app/ | quickapp/ | board/   # 你的作品代码
-logs/                       # AI Coding 日志（主动导出后提交，格式见 logs/README.md）
-README.md                   # 作品说明（提交前请改成你自己的，见第六节）
-```
-
-> 仓内附带了一个 `.gitignore.example`，给出了**编译产物**等不需要进仓的文件示例。如需启用，`cp .gitignore.example .gitignore` 后按需增删即可。**注意 `logs/` 下最终导出的 AI Coding 日志必须提交，不要忽略。**
->
-> `logs/` 的目录结构与提交格式见 [logs/README.md](logs/README.md)。
-
----
-
-## 四、第三步：编译与运行
-
-编译/运行步骤随作品形态不同而不同，请参考你所在赛道的教程导航：
-
-- 快应用 / 手表应用：[快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)（含模拟器与开发板部署）。
-- AI 硬件产品创新：[AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)（环境搭建、编译烧录、Skill 开发）。
-- 新硬件适配：[新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md)（BSP 移植、最小 NSH 基线）。
-
-子目录已通过 manifest 中的 `<linkfile>` 软链进 openvela 编译树，因此构建在 openvela 工作区**根目录**（即你这个仓的上一级）进行。openvela 使用 `build.sh` 作为统一入口，接收一个 **board config 路径**作为参数：
-
-```bash
-# 进入 openvela 工作区根目录（你的仓的上一级）
-cd ..
-
-# 通用语法：第一个参数是 board config 路径，第二个参数可以是 menuconfig / distclean 等
-./build.sh <board-config-path> [menuconfig|distclean] [-j8]
-```
-
-> 具体的 board config 路径、目标产物、模拟器/真机部署方式请以你所在赛道的教程导航为准。本仓 `app/` `quickapp/` `board/` 三个示例骨架对应的 Kconfig 选项可通过 `menuconfig` 启用。
-
----
-
-## 五、第四步：提交作品
-
-1. **fork** 你的专属仓 → 开发 → `git commit` 并推送 → 向专属仓发起 **Pull Request**，可**自行 review 并合入**（无需等组委会）。
-2. **AI Coding 日志**：与 AI 工具的对话会自动记录到本机 staging（不会自动上传），需你**主动导出/打包**选定会话到仓内 `logs/` 目录后一并提交。详见[《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md)。
-3. 若需改动 **nuttx 等公共仓库**，不在本仓改，而是 fork 对应公共仓、以 PR 提交到 `dev-ai-contest-2026` 分支，由组委会 review 后合入。
-
-> ⏰ **提交作品截止：9 月 20 日**。截止后统一收回 push 权限，仍可查看 / clone。
->
-> 获奖后再按要求将作品 PR 至 openvela 上游对应仓库（走标准 PR + CI 流程）。
-
-### 关于 PR 与 CLA
-
-- 本仓所有改动通过 **Pull Request** 合入（分支保护强制，可自行合入自己的 PR）。
-- 首次贡献需在[**官网签署 CLA**](https://openvela.com/#/community/cla)；PR 上会自动跑 `cla/signature` 检查，在官网签署成功后，在 PR 评论 `/check-cla` 复检即可通过。
-
----
-
-## 六、提交前：把本 README 改成你的作品说明
-
-本文件目前是组委会给的**使用说明书**。**作品提交前，请把它替换成你自己作品的说明**，方便评委快速了解你做了什么、怎么跑起来。建议至少包含以下内容：
-
-```markdown
-# <你的作品名>
-
-## 一、作品简介
-<一句话/一段话说明这个作品是什么、解决什么问题、亮点在哪>
-
-## 二、选题方向
-<快应用 / 手表应用创新 ｜ AI 硬件产品创新 ｜ 新硬件适配 ｜ 自定方向，并简述理由>
-
-## 三、目录结构
-<列出你这个仓里各目录/文件的作用，例如：>
-- `app/xxx/`        — <说明>
-- `board/xxx/`      — <说明>
-- `quickapp/xxx/`   — <说明>
-- `logs/`           — AI Coding 日志
-- `docs/` 或其他    — <说明>
-
-## 四、运行方式
-<拉取工程后，如何编译、烧录/部署、运行的完整步骤；最好能让评委照着一步步复现>
-
-## 五、AI Coding 使用说明
-<说明本作品如何借助 AI 辅助开发：
-- 在需求拆解 / 方案设计 / 编码 / 调试 / 文档等环节如何与 AI 协作；
-- AI 对开发效率或质量带来的实际帮助。
-完整对话日志见 logs/ 目录>
-```
-
-> 提示：将会根据「作品本身 + 你的 README 说明 + `logs/` 里的 AI Coding 日志」来理解和评估你的作品，README 写清楚很重要。
-
----
-
-## 附：仓库命名规范
-
-`contest2026_<编号>_<队伍名>` — 编号三位零填充；队名 slug（全小写、英文/拼音、连字符）。例：`contest2026_044_EsperantoR`。
-（仓库由组委会统一创建，**每队仅一个仓**，无需自行命名。）
+- **框架**：openvela 快应用（类 Vue 语法）
+- **目标设备**：黄山派 SF32LB52（Cortex-M33）
+- **传感器**：六轴IMU、心率、环境光、地磁
+- **通信**：BLE 5.3
+- **显示**：AMOLED 390×450
+- **开发工具**：AIoT-IDE + 模拟器

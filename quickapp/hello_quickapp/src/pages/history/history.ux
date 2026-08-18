@@ -1,0 +1,153 @@
+<template>
+  <div class="container">
+    <nav-bar title="历史记录"></nav-bar>
+
+    <div class="record-list" if="{{ records.length > 0 }}">
+      <div class="record-item" for="{{ records }}">
+        <div class="record-left">
+          <text class="record-icon">{{ $item.icon }}</text>
+          <div class="record-info">
+            <text class="record-name">{{ $item.typeName }}</text>
+            <text class="record-time">{{ $item.timeStr }}</text>
+          </div>
+        </div>
+        <div class="record-right">
+          <text class="record-score">{{ $item.score }}分</text>
+          <text class="record-detail">{{ $item.count }}次 · {{ $item.calories }}千卡</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" if="{{ records.length === 0 }}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无训练记录</text>
+      <text class="empty-hint">完成一次训练后会在这里显示</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import NavBar from '../../components/nav-bar.ux';
+var storage = require('../../common/storage.js');
+var utils = require('../../common/utils.js');
+var logger = require('../../common/logger.js');
+
+export default {
+  components: { NavBar },
+  private: {
+    records: []
+  },
+
+  onReady() {
+    logger.info('history page ready');
+    this.loadRecords();
+  },
+
+  loadRecords() {
+    var raw = storage.getRecords(20);
+    var list = [];
+    for (var i = 0; i < raw.length; i++) {
+      var r = raw[i];
+      var config = utils.getExerciseConfig(r.type);
+      var date = new Date(r.timestamp);
+      var timeStr = (date.getMonth() + 1) + '/' + date.getDate() + ' ' +
+        (date.getHours() < 10 ? '0' + date.getHours() : '' + date.getHours()) + ':' +
+        (date.getMinutes() < 10 ? '0' + date.getMinutes() : '' + date.getMinutes());
+      list.push({
+        type: r.type,
+        typeName: config.name,
+        icon: config.icon,
+        count: r.count,
+        calories: r.calories,
+        score: r.score,
+        timeStr: timeStr
+      });
+    }
+    this.records = list;
+  }
+}
+</script>
+
+<style>
+.record-list {
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+}
+
+.record-item {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  background-color: #111111;
+  border-radius: 12px;
+}
+
+.record-left {
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+}
+
+.record-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.record-info {
+  flex-direction: column;
+}
+
+.record-name {
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.record-time {
+  color: #666666;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.record-right {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.record-score {
+  color: #FFD700;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.record-detail {
+  color: #888888;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.empty-state {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  color: #666666;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.empty-hint {
+  color: #444444;
+  font-size: 14px;
+}
+</style>

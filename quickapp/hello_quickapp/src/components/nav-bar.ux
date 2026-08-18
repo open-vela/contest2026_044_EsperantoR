@@ -1,0 +1,73 @@
+<template>
+  <div class="header">
+    <div class="back-btn" onclick="onBack" if="{{ showBack }}">
+      <text class="back-btn-text">‹</text>
+    </div>
+    <text class="title">{{ title }}</text>
+    <div class="right-area" if="{{ rightText }}">
+      <text class="right-text" onclick="onRightClick">{{ rightText }}</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+
+export default {
+  props: {
+    title: { default: '' },
+    showBack: { default: true },
+    rightText: { default: '' }
+  },
+
+  onBack() {
+    router.back();
+  },
+
+  onRightClick() {
+    this.$emit('rightclick');
+  }
+}
+</script>
+
+<style>
+.header {
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 0px 8px;
+}
+
+.back-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  background-color: #222222;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.back-btn-text {
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+  flex: 1;
+}
+
+.right-area {
+  align-items: center;
+  justify-content: center;
+}
+
+.right-text {
+  color: #00E676;
+  font-size: 14px;
+}
+</style>

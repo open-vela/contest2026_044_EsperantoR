@@ -1,0 +1,66 @@
+<template>
+  <div class="container">
+    <nav-bar title="海拔"></nav-bar>
+    <div class="content">
+      <text class="icon">⛰️</text>
+      <text class="value">{{ altitude }}m</text>
+      <text class="label">海拔高度</text>
+    </div>
+    <div class="bottom-hint">
+      <text class="swipe-hint">双右滑返回</text>
+    </div>
+    <div class="exit-hint" if="{{ showExitHint }}">
+      <text class="exit-hint-text">再滑一次退出</text>
+    </div>
+  </div>
+</template>
+
+<script>
+var logger = require('../../common/logger.js');
+import NavBar from '../../components/nav-bar.ux';
+
+export default {
+  components: { NavBar },
+  private: {
+    altitude: 0,
+    showExitHint: false,
+    _lastSwipeTime: 0,
+    _timer: null
+  },
+  onReady() {
+    logger.info('altitude page ready');
+    var self = this;
+    this._timer = setInterval(function() {
+      self.altitude = Math.round(100 + Math.random() * 50);
+    }, 2000);
+  },
+  onDestroy() {
+    if (this._timer) clearInterval(this._timer);
+  },
+  onPageSwipe(evt) {
+    var now = Date.now();
+    if (evt.direction === 'right') {
+      if (now - this._lastSwipeTime < 500) {
+        require('@system.router').back();
+        return;
+      }
+      this._lastSwipeTime = now;
+      this.showExitHint = true;
+      var self = this;
+      setTimeout(function() { self.showExitHint = false; }, 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 40px 24px; border-radius: 24px; }
+.content { flex: 1; flex-direction: column; align-items: center; justify-content: center; }
+.icon { font-size: 48px; margin-bottom: 12px; }
+.value { color: #FF9800; font-size: 48px; font-weight: bold; }
+.label { color: #888; font-size: 16px; margin-top: 8px; }
+.bottom-hint { align-items: center; margin-top: auto; }
+.swipe-hint { color: #666; font-size: 12px; }
+.exit-hint { position: fixed; bottom: 60px; left: 0; width: 100%; align-items: center; }
+.exit-hint-text { background-color: rgba(255,38,60,0.8); color: #fff; font-size: 12px; padding: 6px 16px; border-radius: 12px; }
+</style>
