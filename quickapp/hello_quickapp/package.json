@@ -1,7 +1,7 @@
 {
   "name": "运动教练",
   "version": "1.0.0",
-  "description": "",
+  "description": "动感教练 - 基于多传感器融合的可穿戴 AI 运动教练快应用",
   "engines": {
     "node": ">=8.10"
   },

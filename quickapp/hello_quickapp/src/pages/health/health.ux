@@ -21,14 +21,14 @@
         </div>
         <div class="metric-row">
           <text class="metric-icon">🔥</text>
-          <text class="metric-name">卡路里</text>
+          <text class="metric-name">卡路�?/text>
           <text class="metric-value">{{ calories }} 千卡</text>
           <text class="metric-status" style="color: {{ calStatus.color }}">{{ calStatus.text }}</text>
         </div>
         <div class="metric-row">
-          <text class="metric-icon">🏋️</text>
+          <text class="metric-icon">🏋�?/text>
           <text class="metric-name">训练</text>
-          <text class="metric-value">{{ trainCount }} 次</text>
+          <text class="metric-value">{{ trainCount }} �?/text>
           <text class="metric-status" style="color: {{ trainStatus.color }}">{{ trainStatus.text }}</text>
         </div>
       </div>
@@ -37,8 +37,8 @@
         <text class="ai-text">{{ aiSummary }}</text>
       </div>
     </div>
-    <div class="bottom-hint"><text class="swipe-hint">双右滑返回</text></div>
-    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出</text></div>
+    <div class="bottom-hint"><text class="swipe-hint">双右滑返�?/text></div>
+    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退�?/text></div>
   </div>
 </template>
 
@@ -54,9 +54,9 @@ export default {
     healthScore: 85, heartRate: 72, steps: 0, calories: 0, trainCount: 0,
     hrStatus: { text: '正常', color: '#00E676' },
     stepsStatus: { text: '良好', color: '#00E676' },
-    calStatus: { text: '一般', color: '#FFD700' },
+    calStatus: { text: '一�?, color: '#FFD700' },
     trainStatus: { text: '活跃', color: '#00E676' },
-    aiSummary: '根据您的运动数据分析，整体健康状态良好，建议保持每天30分钟的运动量。',
+    aiSummary: '根据您的运动数据分析，整体健康状态良好，建议保持每天30分钟的运动量�?,
     showExitHint: false, _lastSwipeTime: 0
   },
   onReady() {
@@ -72,7 +72,7 @@ export default {
     if (this.heartRate < 60) this.hrStatus = { text: '偏低', color: '#FFA500' };
     else if (this.heartRate > 100) this.hrStatus = { text: '偏高', color: '#FF263C' };
     if (this.steps < 3000) this.stepsStatus = { text: '不足', color: '#FF263C' };
-    else if (this.steps < 6000) this.stepsStatus = { text: '一般', color: '#FFD700' };
+    else if (this.steps < 6000) this.stepsStatus = { text: '一�?, color: '#FFD700' };
     if (this.calories > 200) this.calStatus = { text: '优秀', color: '#00E676' };
     if (this.trainCount >= 3) this.trainStatus = { text: '优秀', color: '#00E676' };
     var score = 70;
@@ -93,7 +93,7 @@ export default {
 </script>
 
 <style>
-.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 20px; border-radius: 24px; }
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 20px; border-radius: 230px; }
 .content { flex: 1; flex-direction: column; align-items: center; width: 100%; }
 .score-ring { width: 100px; height: 100px; border-radius: 50px; border-width: 3px; border-color: #00E676; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; }
 .score-value { color: #00E676; font-size: 32px; font-weight: bold; }

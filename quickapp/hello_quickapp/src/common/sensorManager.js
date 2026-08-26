@@ -42,8 +42,12 @@ function init() {
 function _onPowerChanged(data) {
   if (data.state === powerManager.STATE.STANDBY) {
     setActive(false);
+    _stopAccelerometerSource();
   } else if (data.state === powerManager.STATE.ACTIVE) {
     setActive(true);
+    if (Object.keys(_accelSubscribers).length > 0) {
+      _startAccelerometerSource();
+    }
   }
 }
 
@@ -156,19 +160,12 @@ function _startSimulatedSensor() {
 
   _simSensorTimer = setInterval(function() {
     if (!_isActive) return;
-    var phase = Math.random();
-    var ax, ay, az;
-    if (phase > 0.5) {
-      ax = 8 + Math.random() * 10;
-      ay = -5 + Math.random() * 10;
-      az = 3 + Math.random() * 8;
-    } else {
-      ax = Math.random() * 2 - 1;
-      ay = 9.8 + Math.random() * 2 - 1;
-      az = Math.random() * 2 - 1;
-    }
+    var t = Date.now() / 1000;
+    var ax = Math.sin(t * 2) * 9.8 + (Math.random() * 2 - 1);
+    var ay = Math.cos(t * 2) * 2 + (Math.random() * 2 - 1);
+    var az = 9.8 + Math.sin(t * 2) * 3 + (Math.random() * 2 - 1);
     _notifyAccelSubscribers({ x: ax, y: ay, z: az });
-  }, 500);
+  }, 20);
 }
 
 function unsubscribeAccelerometer() {

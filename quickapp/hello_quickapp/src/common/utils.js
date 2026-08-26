@@ -109,10 +109,19 @@ function getDateKey(date) {
   return y + '-' + (m < 10 ? '0' + m : '' + m) + '-' + (d < 10 ? '0' + d : '' + d);
 }
 
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+function formatTime(ts) {
+  var d = new Date(ts);
+  return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
 module.exports = {
   getExerciseConfig: getExerciseConfig,
   getAllExerciseTypes: getAllExerciseTypes,
   formatDuration: formatDuration,
   estimateCalories: estimateCalories,
-  getDateKey: getDateKey
+  getDateKey: getDateKey,
+  pad2: pad2,
+  formatTime: formatTime
 };

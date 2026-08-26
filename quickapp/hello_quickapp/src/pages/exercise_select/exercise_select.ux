@@ -2,9 +2,9 @@
   <div class="container">
     <nav-bar title="动感教练"></nav-bar>
 
-    <!-- 上箭头 -->
+    <!-- 上箭�?-->
     <div class="arrow-btn" onclick="onScrollUp">
-      <text class="arrow-text">▲</text>
+      <text class="arrow-text">�?/text>
     </div>
 
     <!-- 功能列表 -->
@@ -19,9 +19,9 @@
       </div>
     </div>
 
-    <!-- 下箭头 -->
+    <!-- 下箭�?-->
     <div class="arrow-btn" onclick="onScrollDown">
-      <text class="arrow-text">▼</text>
+      <text class="arrow-text">�?/text>
     </div>
   </div>
 </template>
@@ -35,14 +35,14 @@ var storage = require('../../common/storage.js');
 var logger = require('../../common/logger.js');
 
 var allMenuItems = [
-  { key: 'exercise', icon: '🏋️', name: '运动选择', desc: '开始训练', page: null },
+  { key: 'exercise', icon: '🏋�?, name: '运动选择', desc: '开始训�?, page: null },
   { key: 'history', icon: '📊', name: '历史记录', desc: '查看训练记录', page: '/pages/history' },
   { key: 'compass', icon: '🧭', name: '罗盘', desc: '户外方位', page: '/pages/compass' },
-  { key: 'weather', icon: '🌤️', name: '天气', desc: '天气信息', page: '/pages/weather' },
+  { key: 'weather', icon: '🌤�?, name: '天气', desc: '天气信息', page: '/pages/weather' },
   { key: 'altitude', icon: '⛰️', name: '海拔', desc: '海拔高度', page: '/pages/altitude' },
-  { key: 'timer', icon: '⏱️', name: '计时器', desc: '倒计时/秒表', page: '/pages/timer' },
+  { key: 'timer', icon: '⏱️', name: '计时�?, desc: '倒计�?秒表', page: '/pages/timer' },
   { key: 'music', icon: '🎵', name: '音乐', desc: '音乐控制', page: '/pages/music' },
-  { key: 'health', icon: '❤️', name: 'AI健康评估', desc: '健康状态分析', page: '/pages/health' },
+  { key: 'health', icon: '❤️', name: 'AI健康评估', desc: '健康状态分�?, page: '/pages/health' },
   { key: 'xiaozhi', icon: '🤖', name: '小智AI', desc: '语音助手', page: '/pages/xiaozhi' },
   { key: 'settings', icon: '⚙️', name: '系统设置', desc: '亮度/振动/连接', page: '/pages/settings' }
 ];
@@ -87,7 +87,7 @@ export default {
     try {
       var records = storage.getRecords(1);
       if (records && records.length > 0) {
-        this.allItems[1].desc = '最近' + Math.min(records.length, 10) + '次';
+        this.allItems[1].desc = '最�? + Math.min(records.length, 10) + '�?;
       }
     } catch (e) {
       logger.warn('updateHistoryCount error');
@@ -165,7 +165,7 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 36px 16px 16px 16px;
-  border-radius: 24px;
+  border-radius: 230px;
 }
 
 .arrow-btn {

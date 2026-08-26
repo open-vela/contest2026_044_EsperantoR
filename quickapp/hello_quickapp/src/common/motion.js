@@ -89,6 +89,11 @@ function feedSample(ax, ay, az) {
   var stdDev = Math.sqrt(variance);
 
   var adaptiveThreshold = mean + _params.threshold * (stdDev / 5.0 + 0.5);
+  var thresholdCap = mean + _params.threshold * 2.0;
+  if (adaptiveThreshold > thresholdCap) adaptiveThreshold = thresholdCap;
+  if (adaptiveThreshold < mean + _params.threshold * 0.4) {
+    adaptiveThreshold = mean + _params.threshold * 0.4;
+  }
 
   if (currentVal > adaptiveThreshold) {
     var isPeak = true;
@@ -105,7 +110,7 @@ function feedSample(ax, ay, az) {
       if (!_inUpPhase) {
         _inUpPhase = true;
         _count++;
-        _lastRepTime = now;
+        _recordRep(currentVal, now);
         _lastPeakValue = currentVal;
         return true;
       }
@@ -145,6 +150,34 @@ function reset() {
   _lastRepTime = 0;
   _lastPeakValue = 0;
   _inUpPhase = true;
+  _repStats = [];
+}
+
+// Per-rep 质量特征
+var _repStats = [];
+
+function _recordRep(peakVal, now) {
+  var interval = _lastRepTime > 0 ? (now - _lastRepTime) : 0;
+  _repStats.push({ peak: peakVal, interval: interval });
+  _lastRepTime = now;
+}
+
+function getQualityFeatures() {
+  if (_repStats.length === 0) return null;
+  var peaks = _repStats.map(function(r) { return r.peak; });
+  var intervals = _repStats.filter(function(r) { return r.interval > 0; }).map(function(r) { return r.interval; });
+  var mean = function(a) { return a.reduce(function(s, v) { return s + v; }, 0) / a.length; };
+  var std = function(a) { var m = mean(a); return Math.sqrt(mean(a.map(function(v) { return (v - m) * (v - m); }))); };
+
+  return {
+    exerciseType: _type,
+    repCount: _repStats.length,
+    avgPeak: +mean(peaks).toFixed(2),
+    peakStd: +std(peaks).toFixed(2),
+    avgInterval: intervals.length ? +mean(intervals).toFixed(0) : 0,
+    intervalStd: intervals.length ? +std(intervals).toFixed(0) : 0,
+    durationMs: _timestamps.length ? (_timestamps[_timestamps.length - 1] - _timestamps[0]) : 0
+  };
 }
 
 module.exports = {
@@ -154,5 +187,6 @@ module.exports = {
   getType: getType,
   getLastMagnitude: getLastMagnitude,
   getRecentValues: getRecentValues,
+  getQualityFeatures: getQualityFeatures,
   reset: reset
 };

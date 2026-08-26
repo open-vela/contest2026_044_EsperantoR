@@ -5,7 +5,7 @@
     <div class="score-area">
       <div class="score-ring">
         <text class="score-value">{{ score }}</text>
-        <text class="score-label">分</text>
+        <text class="score-label">�?/text>
       </div>
     </div>
 
@@ -16,7 +16,7 @@
       </div>
       <div class="stat-row">
         <text class="stat-label">完成次数</text>
-        <text class="stat-val">{{ count }} 次</text>
+        <text class="stat-val">{{ count }} �?/text>
       </div>
       <div class="stat-row">
         <text class="stat-label">运动时长</text>
@@ -27,20 +27,20 @@
         <text class="stat-val">{{ avgHeartRate }} bpm</text>
       </div>
       <div class="stat-row">
-        <text class="stat-label">最高心率</text>
+        <text class="stat-label">最高心�?/text>
         <text class="stat-val">{{ maxHeartRate }} bpm</text>
       </div>
       <div class="stat-row">
-        <text class="stat-label">消耗热量</text>
+        <text class="stat-label">消耗热�?/text>
         <text class="stat-val">{{ calories }} 千卡</text>
       </div>
     </div>
 
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返回表盘</text>
+      <text class="swipe-hint">双右滑返回表�?/text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次返回</text>
+      <text class="exit-hint-text">再滑一次返�?/text>
     </div>
   </div>
 </template>
@@ -113,7 +113,7 @@ export default {
 </script>
 
 <style>
-.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 24px 24px 24px; border-radius: 24px; }
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 24px 24px 24px; border-radius: 230px; }
 .score-area { align-items: center; margin-bottom: 16px; }
 .score-ring { width: 100px; height: 100px; border-radius: 50px; border-width: 3px; border-color: #FFD700; flex-direction: column; align-items: center; justify-content: center; background-color: #1a1a05; }
 .score-value { color: #FFD700; font-size: 34px; font-weight: bold; }

@@ -19,20 +19,20 @@
       </div>
     </div>
 
-    <!-- 设备状态 -->
+    <!-- 设备状�?-->
     <div class="section">
       <div class="section-header">
         <text class="section-icon">📱</text>
-        <text class="section-title">设备状态</text>
+        <text class="section-title">设备状�?/text>
       </div>
       <div class="status-grid">
         <div class="status-item">
           <text class="status-label">蓝牙</text>
-          <text class="status-value" style="color: {{ bleConnected ? '#00E676' : '#FF263C' }}">{{ bleConnected ? '已连接' : '未连接' }}</text>
+          <text class="status-value" style="color: {{ bleConnected ? '#00E676' : '#FF263C' }}">{{ bleConnected ? '已连�? : '未连�? }}</text>
         </div>
         <div class="status-item">
           <text class="status-label">网络</text>
-          <text class="status-value" style="color: {{ networkConnected ? '#00E676' : '#888888' }}">{{ networkConnected ? '已连接' : '无网络' }}</text>
+          <text class="status-value" style="color: {{ networkConnected ? '#00E676' : '#888888' }}">{{ networkConnected ? '已连�? : '无网�? }}</text>
         </div>
         <div class="status-item">
           <text class="status-label">传输</text>
@@ -73,13 +73,13 @@
         <text class="music-title">{{ musicTitle }}</text>
         <div class="music-buttons">
           <div class="music-btn" onclick="onMusicPrev">
-            <text class="music-btn-icon">⏮</text>
+            <text class="music-btn-icon">�?/text>
           </div>
           <div class="music-btn music-btn-play" onclick="onMusicPlay">
-            <text class="music-btn-icon">{{ musicPlaying ? '⏸' : '▶' }}</text>
+            <text class="music-btn-icon">{{ musicPlaying ? '�? : '�? }}</text>
           </div>
           <div class="music-btn" onclick="onMusicNext">
-            <text class="music-btn-icon">⏭</text>
+            <text class="music-btn-icon">�?/text>
           </div>
         </div>
       </div>
@@ -88,14 +88,14 @@
     <!-- 亮度调节 -->
     <div class="section">
       <div class="section-header">
-        <text class="section-icon">☀️</text>
+        <text class="section-icon">☀�?/text>
         <text class="section-title">亮度</text>
         <text class="brightness-value">{{ brightness }}%</text>
       </div>
       <div class="brightness-bar-bg">
         <div class="brightness-bar-fill" style="width: {{ brightness }}%;"></div>
       </div>
-      <text class="brightness-hint">双击空白处自动调节</text>
+      <text class="brightness-hint">双击空白处自动调�?/text>
     </div>
 
     <!-- 底部提示 -->
@@ -129,7 +129,7 @@ export default {
     heartRate: 72,
     steps: 0,
     calories: 0,
-    musicTitle: '未播放',
+    musicTitle: '未播�?,
     musicPlaying: false,
     brightness: 80,
     showExitHint: false,
@@ -244,11 +244,11 @@ export default {
   },
 
   onMusicPrev() {
-    logger.info('上一首');
+    logger.info('上一�?);
   },
 
   onMusicNext() {
-    logger.info('下一首');
+    logger.info('下一�?);
   },
 
   onPageSwipe(evt) {
@@ -276,7 +276,7 @@ export default {
   background-color: #000000;
   flex-direction: column;
   padding: 30px 20px 20px 20px;
-  border-radius: 24px;
+  border-radius: 230px;
 }
 
 .status-bar {

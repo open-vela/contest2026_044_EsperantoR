@@ -7,6 +7,11 @@
 var logger = require('./logger.js');
 var eventBus = require('./eventBus.js');
 
+var _ble = null;
+try { _ble = require('@system.bluetooth'); } catch (e) {
+  try { _ble = require('@service.ble'); } catch (e2) { _ble = null; }
+}
+
 var BLE_STATE = {
   DISCONNECTED: 'disconnected',
   CONNECTING: 'connecting',
@@ -48,30 +53,49 @@ function connect(deviceId) {
     logger.info('BLE已连接到设备: ' + deviceId);
     return Promise.resolve();
   }
-  
+
+  if (!_ble) {
+    // 无 BLE 能力时退回模拟
+    _state = BLE_STATE.CONNECTED;
+    _deviceId = deviceId || 'sim-device';
+    logger.info('BLE模拟连接: ' + _deviceId);
+    eventBus.emit('ble:stateChanged', { state: _state, deviceId: _deviceId });
+    return Promise.resolve();
+  }
+
   _state = BLE_STATE.CONNECTING;
   _deviceId = deviceId;
   eventBus.emit('ble:stateChanged', { state: _state, deviceId: deviceId });
-  
-  logger.info('BLE连接设备: ' + deviceId);
-  
+
   return new Promise(function(resolve, reject) {
-    // 模拟连接过程
-    setTimeout(function() {
-      _state = BLE_STATE.CONNECTED;
-      _serviceId = XIAOZHI_SERVICE_UUID;
-      _characteristicId = XIAOZHI_CHAR_NOTIFY;
-      
-      logger.info('BLE连接成功');
-      eventBus.emit('ble:stateChanged', { 
-        state: _state, 
+    _ble.createBLEAdapter({ success: function() {
+      _ble.connectBLEDevice({
         deviceId: deviceId,
-        serviceId: _serviceId,
-        characteristicId: _characteristicId
+        success: function() {
+          _state = BLE_STATE.CONNECTED;
+          _serviceId = XIAOZHI_SERVICE_UUID;
+          _characteristicId = XIAOZHI_CHAR_NOTIFY;
+          _ble.notifyBLECharacteristicValueChange({
+            deviceId: deviceId,
+            serviceId: XIAOZHI_SERVICE_UUID,
+            characteristicId: XIAOZHI_CHAR_NOTIFY,
+            state: true,
+            callback: function(res) { _handleNotify(res.data); },
+            fail: function() { logger.warn('notify 订阅失败'); }
+          });
+          logger.info('BLE连接成功: ' + deviceId);
+          eventBus.emit('ble:stateChanged', { state: _state, deviceId: deviceId });
+          resolve();
+        },
+        fail: function(err) {
+          _state = BLE_STATE.ERROR;
+          eventBus.emit('ble:error', { type: 'connect_failed', error: err });
+          reject(new Error('BLE 连接失败'));
+        }
       });
-      
-      resolve();
-    }, 1000);
+    }, fail: function(err) {
+      reject(new Error('BLE adapter 创建失败'));
+    }});
   });
 }
 
@@ -175,20 +199,23 @@ function requestAIAnalysis(features) {
  */
 function _sendPacket(packet) {
   return new Promise(function(resolve, reject) {
-    if (_state !== BLE_STATE.CONNECTED) {
-      reject(new Error('BLE未连接'));
-      return;
-    }
-    
+    if (_state !== BLE_STATE.CONNECTED) { reject(new Error('BLE未连接')); return; }
+    if (!_ble) { setTimeout(resolve, 100); return; }
+
     var dataStr = JSON.stringify(packet);
-    var dataBytes = _stringToBytes(dataStr);
-    
-    logger.debug('发送数据包: ' + dataStr);
-    
-    // 模拟发送过程
-    setTimeout(function() {
-      resolve();
-    }, 100);
+    var bytes = _stringToBytes(dataStr);
+    _ble.writeBLECharacteristicValue({
+      deviceId: _deviceId,
+      serviceId: XIAOZHI_SERVICE_UUID,
+      characteristicId: XIAOZHI_CHAR_WRITE,
+      value: bytes,
+      success: function() { resolve(); },
+      fail: function(err) {
+        logger.error('BLE 写入失败: ' + JSON.stringify(err));
+        eventBus.emit('ble:error', { type: 'write_failed', error: err });
+        reject(new Error('BLE 写入失败'));
+      }
+    });
   });
 }
 

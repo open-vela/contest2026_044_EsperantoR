@@ -9,7 +9,7 @@
           <text class="exercise-name">{{ $item.name }}</text>
           <text class="exercise-detail">{{ $item.detail }}</text>
         </div>
-        <text class="exercise-arrow">â€º</text>
+        <text class="exercise-arrow">â€?/text>
       </div>
     </div>
   </div>
@@ -35,10 +35,10 @@ export default {
     logger.info('exercise_list page ready');
     var types = utils.getAllExerciseTypes();
     var details = {
-      squat: '15æ¬¡/ç»„ Ã— 3ç»„',
-      pushup: '12æ¬¡/ç»„ Ã— 3ç»„',
-      jumping_jack: '20æ¬¡/ç»„ Ã— 3ç»„',
-      high_knee: '30æ¬¡/ç»„ Ã— 3ç»„',
+      squat: '15æ¬?ç»?Ã— 3ç»?,
+      pushup: '12æ¬?ç»?Ã— 3ç»?,
+      jumping_jack: '20æ¬?ç»?Ã— 3ç»?,
+      high_knee: '30æ¬?ç»?Ã— 3ç»?,
       running: 'è‡ªç”±è·‘æ­¥'
     };
     for (var i = 0; i < types.length; i++) {
@@ -67,7 +67,7 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 40px 20px 20px 20px;
-  border-radius: 24px;
+  border-radius: 230px;
 }
 
 .exercise-list {

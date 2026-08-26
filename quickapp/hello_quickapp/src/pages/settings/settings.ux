@@ -6,7 +6,7 @@
       <div class="settings-group">
         <text class="group-title">显示</text>
         <div class="setting-item" onclick="onBrightness">
-          <text class="setting-icon">☀️</text>
+          <text class="setting-icon">☀�?/text>
           <text class="setting-name">屏幕亮度</text>
           <text class="setting-value">{{ brightness }}%</text>
         </div>
@@ -22,17 +22,17 @@
         <div class="setting-item" onclick="onRestDuration">
           <text class="setting-icon">⏱️</text>
           <text class="setting-name">组间休息时间</text>
-          <text class="setting-value">{{ restDuration }}秒</text>
+          <text class="setting-value">{{ restDuration }}�?/text>
         </div>
         <div class="setting-item" onclick="onVibrate">
           <text class="setting-icon">📳</text>
           <text class="setting-name">振动反馈</text>
-          <text class="setting-value">{{ vibrateEnabled ? '开启' : '关闭' }}</text>
+          <text class="setting-value">{{ vibrateEnabled ? '开�? : '关闭' }}</text>
         </div>
         <div class="setting-item" onclick="onVoiceGuide">
           <text class="setting-icon">🔊</text>
           <text class="setting-name">语音播报</text>
-          <text class="setting-value">{{ voiceEnabled ? '开启' : '关闭' }}</text>
+          <text class="setting-value">{{ voiceEnabled ? '开�? : '关闭' }}</text>
         </div>
       </div>
 
@@ -41,7 +41,7 @@
         <div class="setting-item" onclick="onBluetooth">
           <text class="setting-icon">📶</text>
           <text class="setting-name">蓝牙</text>
-          <text class="setting-value" style="color: {{ bleConnected ? '#00E676' : '#888' }}">{{ bleConnected ? '已连接' : '未连接' }}</text>
+          <text class="setting-value" style="color: {{ bleConnected ? '#00E676' : '#888' }}">{{ bleConnected ? '已连�? : '未连�? }}</text>
         </div>
         <div class="setting-item" onclick="onXiaozhi">
           <text class="setting-icon">🤖</text>
@@ -66,10 +66,10 @@
     </div>
 
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返回</text>
+      <text class="swipe-hint">双右滑返�?/text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退出</text>
+      <text class="exit-hint-text">再滑一次退�?/text>
     </div>
   </div>
 </template>
@@ -89,7 +89,7 @@ export default {
     vibrateEnabled: true,
     voiceEnabled: false,
     bleConnected: false,
-    xiaozhiStatus: '未配置',
+    xiaozhiStatus: '未配�?,
     showExitHint: false,
     _lastSwipeTime: 0
   },
@@ -102,7 +102,7 @@ export default {
   loadSettings() {
     this.bleConnected = bleService.isConnected();
     if (this.bleConnected) {
-      this.xiaozhiStatus = '已连接';
+      this.xiaozhiStatus = '已连�?;
     }
   },
 
@@ -126,17 +126,17 @@ export default {
     var idx = options.indexOf(this.restDuration);
     idx = (idx + 1) % options.length;
     this.restDuration = options[idx];
-    logger.info('组间休息: ' + this.restDuration + '秒');
+    logger.info('组间休息: ' + this.restDuration + '�?);
   },
 
   onVibrate() {
     this.vibrateEnabled = !this.vibrateEnabled;
-    logger.info('振动反馈: ' + (this.vibrateEnabled ? '开启' : '关闭'));
+    logger.info('振动反馈: ' + (this.vibrateEnabled ? '开�? : '关闭'));
   },
 
   onVoiceGuide() {
     this.voiceEnabled = !this.voiceEnabled;
-    logger.info('语音播报: ' + (this.voiceEnabled ? '开启' : '关闭'));
+    logger.info('语音播报: ' + (this.voiceEnabled ? '开�? : '关闭'));
   },
 
   onBluetooth() {
@@ -144,11 +144,11 @@ export default {
     if (this.bleConnected) {
       bleService.disconnect();
       this.bleConnected = false;
-      this.xiaozhiStatus = '未配置';
+      this.xiaozhiStatus = '未配�?;
     } else {
       bleService.connect('sifli-pan').then(function() {
         self.bleConnected = true;
-        self.xiaozhiStatus = '已连接';
+        self.xiaozhiStatus = '已连�?;
       }).catch(function() {
         self.bleConnected = false;
         self.xiaozhiStatus = '连接失败';
@@ -177,7 +177,7 @@ export default {
 </script>
 
 <style>
-.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 16px 16px 16px; border-radius: 24px; }
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 36px 16px 16px 16px; border-radius: 230px; }
 
 .settings-list { flex-direction: column; width: 100%; flex: 1; }
 .settings-group { margin-bottom: 10px; }

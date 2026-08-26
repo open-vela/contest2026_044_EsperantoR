@@ -1,19 +1,19 @@
 <template>
   <div class="container">
-    <nav-bar title="计时器"></nav-bar>
+    <nav-bar title="计时�?></nav-bar>
     <div class="content">
       <div class="mode-tabs">
         <div class="tab {{ mode === 'stopwatch' ? 'tab-active' : '' }}" onclick="onModeStopwatch">
           <text class="tab-text">秒表</text>
         </div>
         <div class="tab {{ mode === 'countdown' ? 'tab-active' : '' }}" onclick="onModeCountdown">
-          <text class="tab-text">倒计时</text>
+          <text class="tab-text">倒计�?/text>
         </div>
       </div>
       <text class="time-display">{{ displayTime }}</text>
       <div class="controls">
         <div class="ctrl-btn" onclick="onStart">
-          <text class="ctrl-text">{{ running ? '暂停' : '开始' }}</text>
+          <text class="ctrl-text">{{ running ? '暂停' : '开�? }}</text>
         </div>
         <div class="ctrl-btn ctrl-btn-reset" onclick="onReset">
           <text class="ctrl-text">重置</text>
@@ -21,10 +21,10 @@
       </div>
     </div>
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返回</text>
+      <text class="swipe-hint">双右滑返�?/text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退出</text>
+      <text class="exit-hint-text">再滑一次退�?/text>
     </div>
   </div>
 </template>
@@ -80,7 +80,7 @@ export default {
 </script>
 
 <style>
-.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 40px 24px; border-radius: 24px; }
+.container { width: 100%; height: 100%; background-color: #000; flex-direction: column; align-items: center; padding: 40px 24px; border-radius: 230px; }
 .content { flex: 1; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
 .mode-tabs { flex-direction: row; margin-bottom: 20px; }
 .tab { padding: 8px 20px; background-color: #222; border-radius: 20px; margin: 0px 6px; }
@@ -89,7 +89,7 @@ export default {
 .tab-active .tab-text { color: #000; }
 .time-display { color: #fff; font-size: 56px; font-weight: bold; margin-bottom: 24px; }
 .controls { flex-direction: row; }
-.ctrl-btn { padding: 12px 28px; background-color: #00E676; border-radius: 24px; margin: 0px 8px; }
+.ctrl-btn { padding: 12px 28px; background-color: #00E676; border-radius: 230px; margin: 0px 8px; }
 .ctrl-btn-reset { background-color: #333; }
 .ctrl-text { color: #000; font-size: 16px; font-weight: bold; }
 .ctrl-btn-reset .ctrl-text { color: #fff; }
