@@ -1,26 +1,26 @@
 ﻿<template>
   <div class="container">
-    <!-- 顶部：返回按�?+ 动作�?-->
+    <!-- 顶部：返回按钮+ 动作名-->
     <div class="top-bar">
       <div class="back-btn" onclick="onBack">
-        <text class="back-btn-text">�?/text>
+        <text class="back-btn-text">‹</text>
       </div>
       <text class="exercise-icon-top">{{ exerciseIcon }}</text>
       <text class="exercise-name-top">{{ exerciseName }}</text>
     </div>
 
-    <!-- 计时�?-->
+    <!-- 计时器-->
     <div class="timer-area">
       <text class="timer-text">{{ durationText }}</text>
     </div>
 
-    <!-- 状态指�?-->
+    <!-- 状态指示-->
     <div class="status-row">
-      <text class="status-dot-{{ statusClass }}">�?/text>
+      <text class="status-dot-{{ statusClass }}">●</text>
       <text class="status-{{ statusClass }}">{{ statusText }}</text>
     </div>
 
-    <!-- 准备状态：显示开始按�?-->
+    <!-- 准备状态：显示开始按钮-->
     <div class="ready-area" if="{{ isReady }}">
       <div class="ring-progress">
         <div class="ring-bg"></div>
@@ -29,9 +29,9 @@
         </div>
       </div>
       <div class="start-btn" onclick="onStartExercise">
-        <text class="start-btn-text">开始训�?/text>
+        <text class="start-btn-text">开始训练/text>
       </div>
-      <text class="ready-hint">点击开�?· 长按退�?/text>
+      <text class="ready-hint">点击开始· 长按退出/text>
     </div>
 
     <!-- 运动中：环形进度 + 计数 -->
@@ -44,7 +44,7 @@
           <text class="count-target">/ {{ targetCount }}</text>
         </div>
       </div>
-      <text class="set-info">�?{{ currentSet }} / {{ totalSets }} �?/text>
+      <text class="set-info">第 {{ currentSet }} / {{ totalSets }} ‹</text>
     </div>
 
     <!-- 跑步模式显示 -->
@@ -59,7 +59,7 @@
       <div class="run-stats">
         <div class="run-stat">
           <text class="run-stat-value">{{ pace }}</text>
-          <text class="run-stat-label">配�?/text>
+          <text class="run-stat-label">配‹</text>
         </div>
         <div class="run-stat">
           <text class="run-stat-value">{{ calories }}</text>
@@ -76,33 +76,33 @@
       </div>
       <div class="info-divider"></div>
       <div class="info-item">
-        <text class="info-icon-hr">�?/text>
+        <text class="info-icon-hr">‹</text>
         <text class="info-value-hr">{{ heartRate }}</text>
         <text class="info-unit">bpm</text>
       </div>
     </div>
 
-    <!-- 底部：波�?+ AI建议 + 操作按钮 -->
+    <!-- 底部：波形+ AI建议 + 操作按钮 -->
     <div class="bottom-area">
       <div class="waveform" if="{{ !isReady }}">
         <div class="wave-bar" for="{{ waveData }}" style="height: {{ $item }}px;"></div>
       </div>
-      <text class="ai-suggestion" if="{{ aiAnalyzing && !isReady }}">�?AI 分析�?..</text>
+      <text class="ai-suggestion" if="{{ aiAnalyzing && !isReady }}">分AI 分析分..</text>
       <text class="ai-suggestion" if="{{ aiSuggestion && !aiAnalyzing && !isReady }}">💡 {{ aiSuggestion }}</text>
 
-      <!-- 运动中操作按�?-->
+      <!-- 运动中操作按钮-->
       <div class="action-buttons" if="{{ !isReady }}">
         <div class="action-btn action-btn-pause" onclick="onTogglePause">
-          <text class="action-btn-icon">{{ isPaused ? '�? : '�? }}</text>
+          <text class="action-btn-icon">{{ isPaused ? '●' : '中 }}</text>
           <text class="action-btn-text">{{ isPaused ? '继续' : '暂停' }}</text>
         </div>
         <div class="action-btn action-btn-stop" onclick="onShowEndConfirm">
-          <text class="action-btn-icon">�?/text>
+          <text class="action-btn-icon">‹</text>
           <text class="action-btn-text">结束</text>
         </div>
         <div class="action-btn action-btn-back" onclick="onShowExitConfirm">
-          <text class="action-btn-icon">�?/text>
-          <text class="action-btn-text">退�?/text>
+          <text class="action-btn-icon">‹</text>
+          <text class="action-btn-text">退‹</text>
         </div>
       </div>
     </div>
@@ -110,8 +110,8 @@
     <!-- 结束确认弹窗 -->
     <div class="confirm-overlay" if="{{ showConfirm }}">
       <div class="confirm-dialog">
-        <text class="confirm-title">结束训练�?/text>
-        <text class="confirm-desc">本次数据将保�?/text>
+        <text class="confirm-title">结束训练‹</text>
+        <text class="confirm-desc">本次数据将保‹</text>
         <div class="confirm-buttons">
           <div class="confirm-btn-cancel" onclick="onCancelEnd">
             <text class="btn-text-cancel">取消</text>
@@ -123,28 +123,28 @@
       </div>
     </div>
 
-    <!-- 退出确认弹�?-->
+    <!-- 退出确认弹窗-->
     <div class="confirm-overlay" if="{{ showExitConfirm }}">
       <div class="confirm-dialog">
         <text class="confirm-title">退出运动？</text>
-        <text class="confirm-desc">未保存的数据将丢�?/text>
+        <text class="confirm-desc">未保存的数据将丢‹</text>
         <div class="confirm-buttons">
           <div class="confirm-btn-cancel" onclick="onCancelExit">
             <text class="btn-text-cancel">取消</text>
           </div>
           <div class="confirm-btn-ok confirm-btn-danger" onclick="onConfirmExit">
-            <text class="btn-text-ok">退�?/text>
+            <text class="btn-text-ok">退‹</text>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 组间休息倒计�?-->
+    <!-- 组间休息倒计时-->
     <div class="rest-overlay" if="{{ showRestOverlay }}">
       <div class="rest-content">
         <text class="rest-title">组间休息</text>
         <text class="rest-countdown">{{ restCountdown }}</text>
-        <text class="rest-hint">秒后开始下一�?/text>
+        <text class="rest-hint">秒后开始下一‹</text>
         <div class="rest-skip-btn" onclick="onSkipRest">
           <text class="rest-skip-text">跳过休息</text>
         </div>
@@ -156,7 +156,7 @@
       <div class="celebration-content">
         <text class="celebration-icon" style="opacity: {{ celebrationBlink ? 1 : 0.3 }};">🎉</text>
         <text class="celebration-text">{{ celebrationText }}</text>
-        <text class="celebration-score">{{ celebrationScore }} �?/text>
+        <text class="celebration-score">{{ celebrationScore }} ‹</text>
         <text class="celebration-hint">正在生成训练报告...</text>
       </div>
     </div>
@@ -166,14 +166,14 @@
       <div class="history-header">
         <text class="history-title">{{ exerciseName }}历史</text>
         <div class="history-close" onclick="onCloseHistory">
-          <text class="history-close-text">�?/text>
+          <text class="history-close-text">‹</text>
         </div>
       </div>
       <div class="history-list">
         <div class="history-item" for="{{ historyRecords }}">
           <text class="history-time">{{ $item.timeStr }}</text>
-          <text class="history-count">{{ $item.count }}�?/text>
-          <text class="history-score">{{ $item.score }}�?/text>
+          <text class="history-count">{{ $item.count }}‹</text>
+          <text class="history-score">{{ $item.score }}‹</text>
         </div>
         <text class="history-empty" if="{{ historyRecords.length === 0 }}">暂无记录</text>
       </div>
@@ -183,8 +183,8 @@
     <div class="standby-overlay" if="{{ showStandby }}">
       <div class="standby-content">
         <text class="standby-icon">😴</text>
-        <text class="standby-text">检测到无操�?/text>
-        <text class="standby-hint">运动已暂�?/text>
+        <text class="standby-text">检测到无操‹</text>
+        <text class="standby-hint">运动已暂‹</text>
         <div class="standby-btn" onclick="onResumeFromStandby">
           <text class="standby-btn-text">继续运动</text>
         </div>
@@ -212,15 +212,15 @@ var vibratorService = null;
 try {
   vibratorService = require('@system.vibrator');
 } catch (e) {
-  logger.warn('vibrator 不可�?);
+  logger.warn('vibrator 不可用);
 }
 
-var IDLE_TIMEOUT = 120000; // 2分钟无操作待�?
+var IDLE_TIMEOUT = 120000; // 2分钟无操作待分
 export default {
   private: {
     exerciseType: 'squat',
     exerciseName: '深蹲',
-    exerciseIcon: '🏋�?,
+    exerciseIcon: '🏋️',
     targetCount: 15,
     totalSets: 3,
     currentSet: 1,
@@ -249,7 +249,7 @@ export default {
     restCountdown: 30,
     restDuration: 30,
     statusClass: 'ready',
-    statusText: '准备开�?,
+    statusText: '准备开始,
     distance: '0.00',
     pace: '0\'00"',
     calories: 0,
@@ -268,7 +268,7 @@ export default {
   },
 
   onInit() {
-    // exerciseType 由路由参数自动注�?  },
+    // exerciseType 由路由参数自动注入  },
 
   onReady() {
     logger.info('exercise_active page ready, type=' + this.exerciseType);
@@ -300,6 +300,8 @@ export default {
 
     this.connectBLE();
     eventBus.on(eventBus.EVENTS.POWER_STATE_CHANGED, this._onPowerChanged);
+    eventBus.on('ble:aiResponse', this._onAIResponse);
+    eventBus.on('ble:exerciseFeedback', this._onExerciseFeedback);
   },
 
   onDestroy() {
@@ -307,15 +309,17 @@ export default {
     this.stopAll();
     exerciseStateMachine.reset();
     eventBus.off(eventBus.EVENTS.POWER_STATE_CHANGED, this._onPowerChanged);
+    eventBus.off('ble:aiResponse', this._onAIResponse);
+    eventBus.off('ble:exerciseFeedback', this._onExerciseFeedback);
   },
 
-  // === 开始运�?===
+  // === 开始运动===
   onStartExercise() {
-    logger.info('开始运�? ' + this.exerciseType);
+    logger.info('开始运动 ' + this.exerciseType);
     this.isReady = false;
     this._isActive = true;
     this.statusClass = 'active';
-    this.statusText = this.isRunningMode ? '跑步�? : '运动�?;
+    this.statusText = this.isRunningMode ? '跑步中 : '运动中;
 
     exerciseStateMachine.start();
     this.startTimer();
@@ -353,7 +357,7 @@ export default {
       sensorManager.setActive(false);
       this.isPaused = true;
       this.statusClass = 'paused';
-      this.statusText = '已暂�?;
+      this.statusText = '已暂停;
       logger.info('运动暂停');
     }
   },
@@ -364,7 +368,7 @@ export default {
       this.startTimer();
       this.isPaused = false;
       this.statusClass = 'active';
-      this.statusText = this.isRunningMode ? '跑步�? : '运动�?;
+      this.statusText = this.isRunningMode ? '跑步中 : '运动中;
       logger.info('运动继续');
     }
   },
@@ -446,7 +450,7 @@ export default {
     var direction = evt.direction;
     var now = Date.now();
 
-    // 双右滑退出运�?    if (direction === 'right') {
+    // 双右滑退出运动    if (direction === 'right') {
       if (now - this._lastSwipeTime < 500) {
         this.showExitConfirm = true;
         return;
@@ -490,7 +494,7 @@ export default {
     this.showHistory = false;
   },
 
-  // === 计时�?===
+  // === 计时器===
   startTimer() {
     var self = this;
     this._mainTimer = setInterval(function() {
@@ -512,7 +516,7 @@ export default {
     }
   },
 
-  // === 传感�?===
+  // === 传感器===
   startSensor() {
     var self = this;
     this._unsubscribeAccel = sensorManager.subscribeAccelerometer(function(data) {
@@ -558,7 +562,7 @@ export default {
     this.calories = Math.round(this._runningDistance * 60);
   },
 
-  // === 动作检�?===
+  // === 动作检测===
   onRepDetected() {
     this.currentCount++;
     if (vibratorService) {
@@ -582,7 +586,7 @@ export default {
         this.finishExercise();
       }
     } else if (this.currentCount === Math.floor(this.targetCount / 2)) {
-      this.aiSuggestion = '已过半，保持节奏�?;
+      this.aiSuggestion = '已过半，保持节奏！';
     }
 
     if (this.currentCount % 5 === 0 && bleService.isConnected()) {
@@ -624,8 +628,8 @@ export default {
     this.restCountdown = this.restDuration;
     this.showRestOverlay = true;
     this.statusClass = 'resting';
-    this.statusText = '休息�?;
-    this.aiSuggestion = '�? + this.currentSet + '组完成，休息一�?;
+    this.statusText = '休息中';
+    this.aiSuggestion = '第' + this.currentSet + '组完成，休息一下';
     exerciseStateMachine.pause();
     sensorManager.setActive(false);
 
@@ -661,7 +665,7 @@ export default {
     exerciseStateMachine.resume();
     this.isPaused = false;
     this.statusClass = 'active';
-    this.statusText = this.isRunningMode ? '跑步�? : '运动�?;
+    this.statusText = this.isRunningMode ? '跑步中 : '运动中;
     this.startTimer();
     this.resetIdleTimer();
 
@@ -688,7 +692,7 @@ export default {
     var score = this.calculateScore(totalCount, activeDuration, this.getAvgHeartRate());
 
     this.showCelebration = true;
-    this.celebrationText = '训练完成�?;
+    this.celebrationText = '训练完成分;
     this.celebrationScore = score;
 
     if (vibratorService) {
@@ -759,8 +763,8 @@ export default {
   connectBLE() {
     var self = this;
     bleService.connect('xiaozhi-ai-device').then(function() {
-      logger.info('小智AI已连�?);
-      self.aiSuggestion = '小智AI已连�?;
+      logger.info('小智AI已连接);
+      self.aiSuggestion = '小智AI已连接;
     }).catch(function(err) {
       logger.warn('小智AI连接失败: ' + (err.message || err));
       self.aiSuggestion = '🟡 AI 未连接 · 当前为本地估算';

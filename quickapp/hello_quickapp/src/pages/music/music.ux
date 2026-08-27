@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="container">
     <nav-bar title="音乐"></nav-bar>
     <div class="content">
@@ -17,13 +17,13 @@
         </div>
       </div>
       <div class="controls">
-        <div class="ctrl-btn" onclick="onPrev"><text class="ctrl-icon">�?/text></div>
-        <div class="ctrl-btn ctrl-play" onclick="onPlay"><text class="ctrl-icon">{{ playing ? '�? : '�? }}</text></div>
-        <div class="ctrl-btn" onclick="onNext"><text class="ctrl-icon">�?/text></div>
+        <div class="ctrl-btn" onclick="onPrev"><text class="ctrl-icon">‹</text></div>
+        <div class="ctrl-btn ctrl-play" onclick="onPlay"><text class="ctrl-icon">{{ musicPlaying ? '⏸' : '▶'ing ? '分 : '中 }}</text></div>
+        <div class="ctrl-btn" onclick="onNext"><text class="ctrl-icon">‹</text></div>
       </div>
     </div>
-    <div class="bottom-hint"><text class="swipe-hint">双右滑返�?/text></div>
-    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退�?/text></div>
+    <div class="bottom-hint"><text class="swipe-hint">双右滑返‹</text></div>
+    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出/text></div>
   </div>
 </template>
 
@@ -38,8 +38,8 @@ export default {
   },
   onReady() { logger.info('music page ready'); },
   onPlay() { this.playing = !this.playing; },
-  onPrev() { logger.info('上一�?); },
-  onNext() { logger.info('下一�?); },
+  onPrev() { logger.info('上一般); },
+  onNext() { logger.info('下一般); },
   onPageSwipe(evt) {
     var now = Date.now();
     if (evt.direction === 'right') {

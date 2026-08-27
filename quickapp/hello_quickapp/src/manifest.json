@@ -11,10 +11,12 @@
     { "name": "system.storage" },
     { "name": "service.health" },
     { "name": "system.sensor" },
-    { "name": "system.vibrator" }
+    { "name": "system.vibrator" },
+    { "name": "system.bluetooth" }
   ],
   "permissions": [
-    { "name": "hapjs.permission.HEALTH" }
+    { "name": "hapjs.permission.HEALTH" },
+    { "name": "hapjs.permission.BLUETOOTH" }
   ],
   "config": {
     "logLevel": "log",

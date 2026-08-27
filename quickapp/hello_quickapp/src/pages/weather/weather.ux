@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="container">
     <nav-bar title="天气"></nav-bar>
     <text class="location">{{ location }}</text>
@@ -20,12 +20,12 @@
         <text class="detail-label">湿度</text>
       </div>
       <div class="detail-item">
-        <text class="detail-icon">🌬�?/text>
+        <text class="detail-icon">🌬‹</text>
         <text class="detail-value">{{ windSpeed }}</text>
-        <text class="detail-label">风�?/text>
+        <text class="detail-label">风‹</text>
       </div>
       <div class="detail-item">
-        <text class="detail-icon">🌡�?/text>
+        <text class="detail-icon">🌡‹</text>
         <text class="detail-value">{{ feelsLike }}°</text>
         <text class="detail-label">体感</text>
       </div>
@@ -50,10 +50,10 @@
     </div>
 
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返�?/text>
+      <text class="swipe-hint">双右滑返‹</text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退�?/text>
+      <text class="exit-hint-text">再滑一次退出/text>
     </div>
   </div>
 </template>
@@ -64,31 +64,31 @@ import NavBar from '../../components/nav-bar.ux';
 var logger = require('../../common/logger.js');
 
 var weatherData = {
-  '�?: { icon: '☀�?, advice: '天气晴朗，适合户外运动，注意防晒补�? },
-  '多云': { icon: '�?, advice: '天气舒适，适合各种运动' },
-  '�?: { icon: '☁️', advice: '天气阴沉，适合室内运动' },
-  '小雨': { icon: '🌧�?, advice: '有小雨，建议室内运动' },
-  '中雨': { icon: '🌧�?, advice: '雨天路滑，建议室内运�? },
-  '雷阵�?: { icon: '⛈️', advice: '雷雨天气，避免户外运�? },
-  '�?: { icon: '❄️', advice: '下雪天气，注意保暖，建议室内运动' },
-  '�?: { icon: '🌫�?, advice: '有雾能见度低，建议室内运�? }
+  '晴': { icon: '☀️', advice: '天气晴朗，适合户外运动，注意防晒补水 },
+  '多云': { icon: '⛅', advice: '天气舒适，适合各种运动' },
+  '阴': { icon: '☁️', advice: '天气阴沉，适合室内运动' },
+  '小雨': { icon: '🌧️', advice: '有小雨，建议室内运动' },
+  '中雨': { icon: '🌧️', advice: '雨天路滑，建议室内运动 },
+  '雷阵雨': { icon: '⛈️', advice: '雷雨天气，避免户外运动 },
+  '雪': { icon: '❄️', advice: '下雪天气，注意保暖，建议室内运动' },
+  '雾': { icon: '🌫️', advice: '有雾能见度低，建议室内运动 }
 };
 
 export default {
   components: { NavBar },
   private: {
     location: '当前位置',
-    weatherIcon: '☀�?,
+    weatherIcon: '☀️,
     temperature: 26,
-    weatherDesc: '�?,
+    weatherDesc: '晴',
     humidity: 45,
-    windSpeed: '3�?,
+    windSpeed: '3级',
     feelsLike: 28,
-    exerciseAdvice: '天气晴朗，适合户外运动，注意防晒补�?,
+    exerciseAdvice: '天气晴朗，适合户外运动，注意防晒补水,
     forecast: [
-      { time: '14:00', icon: '☀�?, temp: 27 },
-      { time: '15:00', icon: '�?, temp: 26 },
-      { time: '16:00', icon: '�?, temp: 25 }
+      { time: '14:00', icon: '☀️, temp: 27 },
+      { time: '15:00', icon: '⛅', temp: 26 },
+      { time: '16:00', icon: '⛅', temp: 25 }
     ],
     showExitHint: false,
     _lastSwipeTime: 0,
@@ -112,21 +112,21 @@ export default {
     var self = this;
     this._timer = setInterval(function() {
       self.fetchWeather();
-    }, 600000); // �?0分钟刷新
+    }, 600000); // 分0分钟刷新
   },
 
   fetchWeather() {
     var self = this;
-    // 模拟天气数据（实际应调用系统API或BLE获取�?    var weathers = ['�?, '多云', '�?, '小雨'];
+    // 模拟天气数据（实际应调用系统API或BLE获取。    var weathers = ['晴', '多云', '阴', '小雨'];
     var randomWeather = weathers[Math.floor(Math.random() * weathers.length)];
-    var data = weatherData[randomWeather] || weatherData['�?];
+    var data = weatherData[randomWeather] || weatherData['晴'];
 
     self.weatherIcon = data.icon;
     self.weatherDesc = randomWeather;
     self.temperature = Math.round(20 + Math.random() * 15);
     self.humidity = Math.round(30 + Math.random() * 50);
     self.feelsLike = self.temperature + Math.round(Math.random() * 4 - 2);
-    self.windSpeed = Math.round(1 + Math.random() * 5) + '�?;
+    self.windSpeed = Math.round(1 + Math.random() * 5) + '级';
     self.exerciseAdvice = data.advice;
 
     // 模拟未来天气
@@ -135,7 +135,7 @@ export default {
     for (var i = 1; i <= 3; i++) {
       var h = (now.getHours() + i) % 24;
       var fw = weathers[Math.floor(Math.random() * weathers.length)];
-      var fwData = weatherData[fw] || weatherData['�?];
+      var fwData = weatherData[fw] || weatherData['晴'];
       forecast.push({
         time: (h < 10 ? '0' + h : '' + h) + ':00',
         icon: fwData.icon,
@@ -144,7 +144,7 @@ export default {
     }
     self.forecast = forecast;
 
-    logger.info('天气数据已更�? ' + self.weatherDesc + ' ' + self.temperature + '°');
+    logger.info('天气数据已更新 ' + self.weatherDesc + ' ' + self.temperature + '°');
   },
 
   onBack() {

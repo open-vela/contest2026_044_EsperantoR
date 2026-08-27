@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="container">
     <nav-bar title="海拔"></nav-bar>
     <div class="content">
@@ -7,10 +7,10 @@
       <text class="label">海拔高度</text>
     </div>
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返�?/text>
+      <text class="swipe-hint">双右滑返‹</text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退�?/text>
+      <text class="exit-hint-text">再滑一次退出/text>
     </div>
   </div>
 </template>

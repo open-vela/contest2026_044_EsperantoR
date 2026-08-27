@@ -1,19 +1,19 @@
-<template>
+﻿<template>
   <div class="container">
-    <nav-bar title="计时�?></nav-bar>
+    <nav-bar title="计时器"></nav-bar>
     <div class="content">
       <div class="mode-tabs">
         <div class="tab {{ mode === 'stopwatch' ? 'tab-active' : '' }}" onclick="onModeStopwatch">
           <text class="tab-text">秒表</text>
         </div>
         <div class="tab {{ mode === 'countdown' ? 'tab-active' : '' }}" onclick="onModeCountdown">
-          <text class="tab-text">倒计�?/text>
+          <text class="tab-text">倒计时/text>
         </div>
       </div>
       <text class="time-display">{{ displayTime }}</text>
       <div class="controls">
         <div class="ctrl-btn" onclick="onStart">
-          <text class="ctrl-text">{{ running ? '暂停' : '开�? }}</text>
+          <text class="ctrl-text">{{ running ? '暂停' : '开始 }}</text>
         </div>
         <div class="ctrl-btn ctrl-btn-reset" onclick="onReset">
           <text class="ctrl-text">重置</text>
@@ -21,10 +21,10 @@
       </div>
     </div>
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返�?/text>
+      <text class="swipe-hint">双右滑返‹</text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退�?/text>
+      <text class="exit-hint-text">再滑一次退出/text>
     </div>
   </div>
 </template>

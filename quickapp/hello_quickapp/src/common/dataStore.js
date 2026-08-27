@@ -23,6 +23,18 @@ function init() {
   var lastHR = storage.get('lastHeartRate');
   _cache['heartRate'] = lastHR ? parseInt(lastHR) : 72;
 
+  // 异步回填：从 @system.storage 读取历史数据
+  storage.get('exercise_records', function(recordsJson) {
+    if (recordsJson) {
+      logger.info('DataStore: 异步回填历史记录成功');
+    }
+  });
+  storage.get('lastHeartRate', function(hr) {
+    if (hr) {
+      _cache['heartRate'] = parseInt(hr) || 72;
+    }
+  });
+
   logger.info('DataStore initialized');
 }
 

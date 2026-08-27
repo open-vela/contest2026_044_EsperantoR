@@ -248,7 +248,112 @@ function unsubscribeHeartRate() {
 function destroy() {
   unsubscribeAccelerometer();
   unsubscribeHeartRate();
+  unsubscribeGyroscope();
+  unsubscribeMagnetometer();
+  unsubscribeAmbientLight();
   eventBus.off(eventBus.EVENTS.POWER_STATE_CHANGED, _onPowerChanged);
+}
+
+// 陀螺仪订阅
+var _gyroSubscribers = {};
+var _gyroId = 1;
+
+function subscribeGyroscope(callback) {
+  var id = 'gyro_' + (_gyroId++);
+  _gyroSubscribers[id] = { callback: callback, active: true };
+  if (_sensorService) {
+    try {
+      _sensorService.subscribe({
+        sensorId: _sensorService.SENSOR_ID.GYROSCOPE,
+        callback: function(data) { if (_isActive) _notifyGyroSubscribers(data); },
+        fail: function() { logger.warn('陀螺仪不可用'); }
+      });
+    } catch (e) {}
+  }
+  return function() { delete _gyroSubscribers[id]; };
+}
+
+function _notifyGyroSubscribers(data) {
+  var keys = Object.keys(_gyroSubscribers);
+  for (var i = 0; i < keys.length; i++) {
+    var sub = _gyroSubscribers[keys[i]];
+    if (sub && sub.active) { try { sub.callback(data); } catch (e) {} }
+  }
+}
+
+function unsubscribeGyroscope() {
+  _gyroSubscribers = {};
+  if (_sensorService) {
+    try { _sensorService.unsubscribe({ sensorId: _sensorService.SENSOR_ID.GYROSCOPE }); } catch (e) {}
+  }
+}
+
+// 地磁订阅
+var _magSubscribers = {};
+var _magId = 1;
+
+function subscribeMagnetometer(callback) {
+  var id = 'mag_' + (_magId++);
+  _magSubscribers[id] = { callback: callback, active: true };
+  if (_sensorService) {
+    try {
+      _sensorService.subscribe({
+        sensorId: _sensorService.SENSOR_ID.MAGNETOMETER,
+        callback: function(data) { if (_isActive) _notifyMagSubscribers(data); },
+        fail: function() { logger.warn('地磁传感器不可用'); }
+      });
+    } catch (e) {}
+  }
+  return function() { delete _magSubscribers[id]; };
+}
+
+function _notifyMagSubscribers(data) {
+  var keys = Object.keys(_magSubscribers);
+  for (var i = 0; i < keys.length; i++) {
+    var sub = _magSubscribers[keys[i]];
+    if (sub && sub.active) { try { sub.callback(data); } catch (e) {} }
+  }
+}
+
+function unsubscribeMagnetometer() {
+  _magSubscribers = {};
+  if (_sensorService) {
+    try { _sensorService.unsubscribe({ sensorId: _sensorService.SENSOR_ID.MAGNETOMETER }); } catch (e) {}
+  }
+}
+
+// 环境光订阅
+var _lightSubscribers = {};
+var _lightId = 1;
+
+function subscribeAmbientLight(callback) {
+  var id = 'light_' + (_lightId++);
+  _lightSubscribers[id] = { callback: callback, active: true };
+  if (_sensorService) {
+    try {
+      _sensorService.subscribe({
+        sensorId: _sensorService.SENSOR_ID.LIGHT,
+        callback: function(data) { if (_isActive) _notifyLightSubscribers(data); },
+        fail: function() { logger.warn('环境光传感器不可用'); }
+      });
+    } catch (e) {}
+  }
+  return function() { delete _lightSubscribers[id]; };
+}
+
+function _notifyLightSubscribers(data) {
+  var keys = Object.keys(_lightSubscribers);
+  for (var i = 0; i < keys.length; i++) {
+    var sub = _lightSubscribers[keys[i]];
+    if (sub && sub.active) { try { sub.callback(data); } catch (e) {} }
+  }
+}
+
+function unsubscribeAmbientLight() {
+  _lightSubscribers = {};
+  if (_sensorService) {
+    try { _sensorService.unsubscribe({ sensorId: _sensorService.SENSOR_ID.LIGHT }); } catch (e) {}
+  }
 }
 
 module.exports = {
@@ -259,5 +364,11 @@ module.exports = {
   unsubscribeAccelerometer: unsubscribeAccelerometer,
   subscribeHeartRate: subscribeHeartRate,
   unsubscribeHeartRate: unsubscribeHeartRate,
+  subscribeGyroscope: subscribeGyroscope,
+  unsubscribeGyroscope: unsubscribeGyroscope,
+  subscribeMagnetometer: subscribeMagnetometer,
+  unsubscribeMagnetometer: unsubscribeMagnetometer,
+  subscribeAmbientLight: subscribeAmbientLight,
+  unsubscribeAmbientLight: unsubscribeAmbientLight,
   destroy: destroy
 };

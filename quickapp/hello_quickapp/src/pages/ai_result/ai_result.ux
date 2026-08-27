@@ -1,11 +1,11 @@
-<template>
+﻿<template>
   <div class="container">
     <nav-bar title="训练完成"></nav-bar>
 
     <div class="score-area">
       <div class="score-ring">
         <text class="score-value">{{ score }}</text>
-        <text class="score-label">�?/text>
+        <text class="score-label">分</text>
       </div>
     </div>
 
@@ -16,7 +16,7 @@
       </div>
       <div class="stat-row">
         <text class="stat-label">完成次数</text>
-        <text class="stat-val">{{ count }} �?/text>
+        <text class="stat-val">{{ count }} 次</text>
       </div>
       <div class="stat-row">
         <text class="stat-label">运动时长</text>
@@ -27,20 +27,20 @@
         <text class="stat-val">{{ avgHeartRate }} bpm</text>
       </div>
       <div class="stat-row">
-        <text class="stat-label">最高心�?/text>
+        <text class="stat-label">最高心率/text>
         <text class="stat-val">{{ maxHeartRate }} bpm</text>
       </div>
       <div class="stat-row">
-        <text class="stat-label">消耗热�?/text>
+        <text class="stat-label">消耗热量/text>
         <text class="stat-val">{{ calories }} 千卡</text>
       </div>
     </div>
 
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返回表�?/text>
+      <text class="swipe-hint">双右滑返回表盘/text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次返�?/text>
+      <text class="exit-hint-text">再滑一次返分</text>
     </div>
   </div>
 </template>
