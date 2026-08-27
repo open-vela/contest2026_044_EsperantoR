@@ -212,10 +212,10 @@ var vibratorService = null;
 try {
   vibratorService = require('@system.vibrator');
 } catch (e) {
-  logger.warn('vibrator 不可用);
+  logger.warn('vibrator 不可用');
 }
 
-var IDLE_TIMEOUT = 120000; // 2分钟无操作待分
+var IDLE_TIMEOUT = 120000; // 2分钟无操作待机
 export default {
   private: {
     exerciseType: 'squat',
@@ -249,7 +249,7 @@ export default {
     restCountdown: 30,
     restDuration: 30,
     statusClass: 'ready',
-    statusText: '准备开始,
+    statusText: '准备开始',
     distance: '0.00',
     pace: '0\'00"',
     calories: 0,
@@ -357,7 +357,7 @@ export default {
       sensorManager.setActive(false);
       this.isPaused = true;
       this.statusClass = 'paused';
-      this.statusText = '已暂停;
+      this.statusText = '已暂停';
       logger.info('运动暂停');
     }
   },
@@ -692,7 +692,7 @@ export default {
     var score = this.calculateScore(totalCount, activeDuration, this.getAvgHeartRate());
 
     this.showCelebration = true;
-    this.celebrationText = '训练完成分;
+    this.celebrationText = '训练完成！';
     this.celebrationScore = score;
 
     if (vibratorService) {
@@ -763,8 +763,8 @@ export default {
   connectBLE() {
     var self = this;
     bleService.connect('xiaozhi-ai-device').then(function() {
-      logger.info('小智AI已连接);
-      self.aiSuggestion = '小智AI已连接;
+      logger.info('小智AI已连接');
+      self.aiSuggestion = '小智AI已连接';
     }).catch(function(err) {
       logger.warn('小智AI连接失败: ' + (err.message || err));
       self.aiSuggestion = '🟡 AI 未连接 · 当前为本地估算';

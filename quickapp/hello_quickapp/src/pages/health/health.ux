@@ -54,9 +54,9 @@ export default {
     healthScore: 85, heartRate: 72, steps: 0, calories: 0, trainCount: 0,
     hrStatus: { text: '正常', color: '#00E676' },
     stepsStatus: { text: '良好', color: '#00E676' },
-    calStatus: { text: '一般, color: '#FFD700' },
+    calStatus: { text: '一般', color: '#FFD700' },
     trainStatus: { text: '活跃', color: '#00E676' },
-    aiSummary: '根据您的运动数据分析，整体健康状态良好，建议保持每天30分钟的运动量分,
+    aiSummary: '根据您的运动数据分析，整体健康状态良好，建议保持每天30分钟的运动量。',
     showExitHint: false, _lastSwipeTime: 0
   },
   onReady() {
@@ -72,7 +72,7 @@ export default {
     if (this.heartRate < 60) this.hrStatus = { text: '偏低', color: '#FFA500' };
     else if (this.heartRate > 100) this.hrStatus = { text: '偏高', color: '#FF263C' };
     if (this.steps < 3000) this.stepsStatus = { text: '不足', color: '#FF263C' };
-    else if (this.steps < 6000) this.stepsStatus = { text: '一般, color: '#FFD700' };
+    else if (this.steps < 6000) this.stepsStatus = { text: '一般', color: '#FFD700' };
     if (this.calories > 200) this.calStatus = { text: '优秀', color: '#00E676' };
     if (this.trainCount >= 3) this.trainStatus = { text: '优秀', color: '#00E676' };
     var score = 70;

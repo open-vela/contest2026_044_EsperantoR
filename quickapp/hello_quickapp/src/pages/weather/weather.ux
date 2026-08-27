@@ -64,29 +64,29 @@ import NavBar from '../../components/nav-bar.ux';
 var logger = require('../../common/logger.js');
 
 var weatherData = {
-  '晴': { icon: '☀️', advice: '天气晴朗，适合户外运动，注意防晒补水 },
+  '晴': { icon: '☀️', advice: '天气晴朗，适合户外运动，注意防晒补水' },
   '多云': { icon: '⛅', advice: '天气舒适，适合各种运动' },
   '阴': { icon: '☁️', advice: '天气阴沉，适合室内运动' },
   '小雨': { icon: '🌧️', advice: '有小雨，建议室内运动' },
-  '中雨': { icon: '🌧️', advice: '雨天路滑，建议室内运动 },
-  '雷阵雨': { icon: '⛈️', advice: '雷雨天气，避免户外运动 },
+  '中雨': { icon: '🌧️', advice: '雨天路滑，建议室内运动' },
+  '雷阵雨': { icon: '⛈️', advice: '雷雨天气，避免户外运动' },
   '雪': { icon: '❄️', advice: '下雪天气，注意保暖，建议室内运动' },
-  '雾': { icon: '🌫️', advice: '有雾能见度低，建议室内运动 }
+  '雾': { icon: '🌫️', advice: '有雾能见度低，建议室内运动' }
 };
 
 export default {
   components: { NavBar },
   private: {
     location: '当前位置',
-    weatherIcon: '☀️,
+    weatherIcon: '☀️',
     temperature: 26,
     weatherDesc: '晴',
     humidity: 45,
     windSpeed: '3级',
     feelsLike: 28,
-    exerciseAdvice: '天气晴朗，适合户外运动，注意防晒补水,
+    exerciseAdvice: '天气晴朗，适合户外运动，注意防晒补水',
     forecast: [
-      { time: '14:00', icon: '☀️, temp: 27 },
+      { time: '14:00', icon: '☀️', temp: 27 },
       { time: '15:00', icon: '⛅', temp: 26 },
       { time: '16:00', icon: '⛅', temp: 25 }
     ],
@@ -112,7 +112,7 @@ export default {
     var self = this;
     this._timer = setInterval(function() {
       self.fetchWeather();
-    }, 600000); // 分0分钟刷新
+    }, 600000); // 10分钟刷新
   },
 
   fetchWeather() {

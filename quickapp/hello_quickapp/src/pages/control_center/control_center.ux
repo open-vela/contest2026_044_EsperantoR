@@ -129,7 +129,7 @@ export default {
     heartRate: 72,
     steps: 0,
     calories: 0,
-    musicTitle: '未播放,
+    musicTitle: '未播放',
     musicPlaying: false,
     brightness: 80,
     showExitHint: false,
@@ -244,11 +244,11 @@ export default {
   },
 
   onMusicPrev() {
-    logger.info('上一般);
+    logger.info('上一首');
   },
 
   onMusicNext() {
-    logger.info('下一般);
+    logger.info('下一首');
   },
 
   onPageSwipe(evt) {

@@ -38,8 +38,8 @@ export default {
   },
   onReady() { logger.info('music page ready'); },
   onPlay() { this.playing = !this.playing; },
-  onPrev() { logger.info('上一般); },
-  onNext() { logger.info('下一般); },
+  onPrev() { logger.info('上一首'); },
+  onNext() { logger.info('下一首'); },
   onPageSwipe(evt) {
     var now = Date.now();
     if (evt.direction === 'right') {

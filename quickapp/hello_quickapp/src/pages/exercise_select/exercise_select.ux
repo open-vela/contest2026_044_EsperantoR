@@ -35,7 +35,7 @@ var storage = require('../../common/storage.js');
 var logger = require('../../common/logger.js');
 
 var allMenuItems = [
-  { key: 'exercise', icon: '🏋️', name: '运动选择', desc: '开始训练, page: null },
+  { key: 'exercise', icon: '🏋️', name: '运动选择', desc: '开始训练', page: null },
   { key: 'history', icon: '📊', name: '历史记录', desc: '查看训练记录', page: '/pages/history' },
   { key: 'compass', icon: '🧭', name: '罗盘', desc: '户外方位', page: '/pages/compass' },
   { key: 'weather', icon: '🌤️', name: '天气', desc: '天气信息', page: '/pages/weather' },
