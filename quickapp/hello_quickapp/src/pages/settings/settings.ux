@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container">
     <nav-bar title="系统设置"></nav-bar>
 

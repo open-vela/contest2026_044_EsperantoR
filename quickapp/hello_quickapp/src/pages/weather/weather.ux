@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container">
     <nav-bar title="天气"></nav-bar>
     <text class="location">{{ location }}</text>

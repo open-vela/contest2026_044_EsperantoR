@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container">
     <nav-bar title="选择运动"></nav-bar>
 

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container">
     <!-- 顶部：返回按钮+ 动作名-->
     <div class="top-bar">

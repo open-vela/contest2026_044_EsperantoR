@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container">
     <nav-bar title="训练完成"></nav-bar>
 

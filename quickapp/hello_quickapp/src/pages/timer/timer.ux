@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container">
     <nav-bar title="计时器"></nav-bar>
     <div class="content">
