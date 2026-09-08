@@ -4,19 +4,19 @@
     <div class="content">
       <div class="mode-tabs">
         <div class="tab {{ mode === 'stopwatch' ? 'tab-active' : '' }}" onclick="onModeStopwatch">
-          <text class="tab-text">秒表</text>
+          <text class="tab-text tab-text-active">秒表</text>
         </div>
         <div class="tab {{ mode === 'countdown' ? 'tab-active' : '' }}" onclick="onModeCountdown">
-          <text class="tab-text">倒计时/text>
+          <text class="tab-text tab-text-active">倒计时</text>
         </div>
       </div>
       <text class="time-display">{{ displayTime }}</text>
       <div class="controls">
         <div class="ctrl-btn" onclick="onStart">
-          <text class="ctrl-text">{{ running ? '暂停' : '开始 }}</text>
+          <text class="ctrl-text">{{ running ? '暂停' : '开始' }}</text>
         </div>
         <div class="ctrl-btn ctrl-btn-reset" onclick="onReset">
-          <text class="ctrl-text">重置</text>
+          <text class="ctrl-text ctrl-text-light">重置</text>
         </div>
       </div>
     </div>
@@ -24,7 +24,7 @@
       <text class="swipe-hint">双右滑返‹</text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退出/text>
+      <text class="exit-hint-text">再滑一次退出</text>
     </div>
   </div>
 </template>
@@ -86,13 +86,13 @@ export default {
 .tab { padding: 8px 20px; background-color: #222; border-radius: 20px; margin: 0px 6px; }
 .tab-active { background-color: #00E676; }
 .tab-text { color: #fff; font-size: 14px; }
-.tab-active .tab-text { color: #000; }
+.tab-text-active { color: #000; }
 .time-display { color: #fff; font-size: 56px; font-weight: bold; margin-bottom: 24px; }
 .controls { flex-direction: row; }
 .ctrl-btn { padding: 12px 28px; background-color: #00E676; border-radius: 230px; margin: 0px 8px; }
 .ctrl-btn-reset { background-color: #333; }
 .ctrl-text { color: #000; font-size: 16px; font-weight: bold; }
-.ctrl-btn-reset .ctrl-text { color: #fff; }
+.ctrl-text-light { color: #fff; }
 .bottom-hint { align-items: center; margin-top: auto; }
 .swipe-hint { color: #666; font-size: 12px; }
 .exit-hint { position: fixed; bottom: 60px; left: 0; width: 100%; align-items: center; }

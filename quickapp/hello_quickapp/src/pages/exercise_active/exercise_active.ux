@@ -29,9 +29,9 @@
         </div>
       </div>
       <div class="start-btn" onclick="onStartExercise">
-        <text class="start-btn-text">开始训练/text>
+        <text class="start-btn-text">开始训练</text>
       </div>
-      <text class="ready-hint">点击开始· 长按退出/text>
+      <text class="ready-hint">点击开始· 长按退出</text>
     </div>
 
     <!-- 运动中：环形进度 + 计数 -->
@@ -93,16 +93,16 @@
       <!-- 运动中操作按钮-->
       <div class="action-buttons" if="{{ !isReady }}">
         <div class="action-btn action-btn-pause" onclick="onTogglePause">
-          <text class="action-btn-icon">{{ isPaused ? '●' : '中 }}</text>
-          <text class="action-btn-text">{{ isPaused ? '继续' : '暂停' }}</text>
+          <text class="action-btn-icon action-btn-icon-pause">{{ isPaused ? '●' : '中' }}</text>
+          <text class="action-btn-text action-btn-text-pause">{{ isPaused ? '继续' : '暂停' }}</text>
         </div>
         <div class="action-btn action-btn-stop" onclick="onShowEndConfirm">
-          <text class="action-btn-icon">‹</text>
-          <text class="action-btn-text">结束</text>
+          <text class="action-btn-icon action-btn-icon-stop">‹</text>
+          <text class="action-btn-text action-btn-text-stop">结束</text>
         </div>
         <div class="action-btn action-btn-back" onclick="onShowExitConfirm">
-          <text class="action-btn-icon">‹</text>
-          <text class="action-btn-text">退‹</text>
+          <text class="action-btn-icon action-btn-icon-back">‹</text>
+          <text class="action-btn-text action-btn-text-back">退‹</text>
         </div>
       </div>
     </div>
@@ -268,7 +268,8 @@ export default {
   },
 
   onInit() {
-    // exerciseType 由路由参数自动注入  },
+    // exerciseType 由路由参数自动注入
+  },
 
   onReady() {
     logger.info('exercise_active page ready, type=' + this.exerciseType);
@@ -319,7 +320,7 @@ export default {
     this.isReady = false;
     this._isActive = true;
     this.statusClass = 'active';
-    this.statusText = this.isRunningMode ? '跑步中 : '运动中;
+    this.statusText = this.isRunningMode ? '跑步中' : '运动中';
 
     exerciseStateMachine.start();
     this.startTimer();
@@ -368,7 +369,7 @@ export default {
       this.startTimer();
       this.isPaused = false;
       this.statusClass = 'active';
-      this.statusText = this.isRunningMode ? '跑步中 : '运动中;
+      this.statusText = this.isRunningMode ? '跑步中' : '运动中';
       logger.info('运动继续');
     }
   },
@@ -450,7 +451,8 @@ export default {
     var direction = evt.direction;
     var now = Date.now();
 
-    // 双右滑退出运动    if (direction === 'right') {
+    // 双右滑退出运动
+    if (direction === 'right') {
       if (now - this._lastSwipeTime < 500) {
         this.showExitConfirm = true;
         return;
@@ -665,7 +667,7 @@ export default {
     exerciseStateMachine.resume();
     this.isPaused = false;
     this.statusClass = 'active';
-    this.statusText = this.isRunningMode ? '跑步中 : '运动中;
+    this.statusText = this.isRunningMode ? '跑步中' : '运动中';
     this.startTimer();
     this.resetIdleTimer();
 
@@ -905,13 +907,13 @@ export default {
 .action-btn-stop { background-color: #2a1a1a; border-width: 1px; border-color: #FF263C; }
 .action-btn-back { background-color: #1a1a2a; border-width: 1px; border-color: #448AFF; }
 .action-btn-icon { font-size: 18px; }
-.action-btn-pause .action-btn-icon { color: #00E676; }
-.action-btn-stop .action-btn-icon { color: #FF263C; }
-.action-btn-back .action-btn-icon { color: #448AFF; }
+.action-btn-icon-pause { color: #00E676; }
+.action-btn-icon-stop { color: #FF263C; }
+.action-btn-icon-back { color: #448AFF; }
 .action-btn-text { font-size: 10px; margin-top: 2px; }
-.action-btn-pause .action-btn-text { color: #00E676; }
-.action-btn-stop .action-btn-text { color: #FF263C; }
-.action-btn-back .action-btn-text { color: #448AFF; }
+.action-btn-text-pause { color: #00E676; }
+.action-btn-text-stop { color: #FF263C; }
+.action-btn-text-back { color: #448AFF; }
 .swipe-hint { color: #444; font-size: 10px; }
 
 .confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); flex-direction: column; align-items: center; justify-content: center; }

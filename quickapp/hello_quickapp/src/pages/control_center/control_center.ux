@@ -28,11 +28,11 @@
       <div class="status-grid">
         <div class="status-item">
           <text class="status-label">蓝牙</text>
-          <text class="status-value" style="color: {{ bleConnected ? '#00E676' : '#FF263C' }}">{{ bleConnected ? '已连接 : '未连接 }}</text>
+          <text class="status-value" style="color: {{ bleConnected ? '#00E676' : '#FF263C' }}">{{ bleConnected ? '已连接' : '未连接' }}</text>
         </div>
         <div class="status-item">
           <text class="status-label">网络</text>
-          <text class="status-value" style="color: {{ networkConnected ? '#00E676' : '#888888' }}">{{ networkConnected ? '已连接 : '无网中 }}</text>
+          <text class="status-value" style="color: {{ networkConnected ? '#00E676' : '#888888' }}">{{ networkConnected ? '已连接' : '无网中' }}</text>
         </div>
         <div class="status-item">
           <text class="status-label">传输</text>
@@ -427,7 +427,7 @@ export default {
   font-size: 16px;
 }
 
-.music-btn-play .music-btn-icon {
+.music-btn-icon-dark {
   color: #000000;
 }
 

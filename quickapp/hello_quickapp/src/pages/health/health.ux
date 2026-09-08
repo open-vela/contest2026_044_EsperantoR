@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="bottom-hint"><text class="swipe-hint">双右滑返‹</text></div>
-    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出/text></div>
+    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出</text></div>
   </div>
 </template>
 

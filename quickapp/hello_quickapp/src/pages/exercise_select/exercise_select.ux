@@ -30,7 +30,6 @@
 import router from '@system.router';
 import NavBar from '../../components/nav-bar.ux';
 
-var utils = require('../../common/utils.js');
 var storage = require('../../common/storage.js');
 var logger = require('../../common/logger.js');
 
@@ -48,7 +47,6 @@ var allMenuItems = [
 ];
 
 var VISIBLE_COUNT = 5;
-var ITEM_HEIGHT = 68;
 
 export default {
   components: { NavBar },

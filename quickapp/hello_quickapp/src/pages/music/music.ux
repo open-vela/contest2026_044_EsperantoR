@@ -18,12 +18,12 @@
       </div>
       <div class="controls">
         <div class="ctrl-btn" onclick="onPrev"><text class="ctrl-icon">‹</text></div>
-        <div class="ctrl-btn ctrl-play" onclick="onPlay"><text class="ctrl-icon">{{ musicPlaying ? '⏸' : '▶'ing ? '分 : '中 }}</text></div>
+        <div class="ctrl-btn ctrl-play" onclick="onPlay"><text class="ctrl-icon ctrl-icon-play">{{ playing ? '⏸' : '▶' }}</text></div>
         <div class="ctrl-btn" onclick="onNext"><text class="ctrl-icon">‹</text></div>
       </div>
     </div>
     <div class="bottom-hint"><text class="swipe-hint">双右滑返‹</text></div>
-    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出/text></div>
+    <div class="exit-hint" if="{{ showExitHint }}"><text class="exit-hint-text">再滑一次退出</text></div>
   </div>
 </template>
 
@@ -67,7 +67,7 @@ export default {
 .ctrl-btn { width: 44px; height: 44px; border-radius: 22px; background-color: #222; align-items: center; justify-content: center; margin: 0px 10px; }
 .ctrl-play { width: 52px; height: 52px; border-radius: 26px; background-color: #00E676; }
 .ctrl-icon { color: #fff; font-size: 18px; }
-.ctrl-play .ctrl-icon { color: #000; }
+.ctrl-icon-play { color: #000; }
 .bottom-hint { align-items: center; margin-top: auto; }
 .swipe-hint { color: #666; font-size: 12px; }
 .exit-hint { position: fixed; bottom: 60px; left: 0; width: 100%; align-items: center; }

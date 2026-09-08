@@ -41,7 +41,7 @@
         <div class="setting-item" onclick="onBluetooth">
           <text class="setting-icon">📶</text>
           <text class="setting-name">蓝牙</text>
-          <text class="setting-value" style="color: {{ bleConnected ? '#00E676' : '#888' }}">{{ bleConnected ? '已连接 : '未连接 }}</text>
+          <text class="setting-value" style="color: {{ bleConnected ? '#00E676' : '#888' }}">{{ bleConnected ? '已连接' : '未连接' }}</text>
         </div>
         <div class="setting-item" onclick="onXiaozhi">
           <text class="setting-icon">🤖</text>
@@ -69,7 +69,7 @@
       <text class="swipe-hint">双右滑返‹</text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退出/text>
+      <text class="exit-hint-text">再滑一次退出</text>
     </div>
   </div>
 </template>

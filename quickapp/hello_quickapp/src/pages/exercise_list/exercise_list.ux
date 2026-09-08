@@ -19,7 +19,6 @@
 import router from '@system.router';
 
 var utils = require('../../common/utils.js');
-var gestureRouter = require('../../common/gestureRouter.js');
 var logger = require('../../common/logger.js');
 import NavBar from '../../components/nav-bar.ux';
 

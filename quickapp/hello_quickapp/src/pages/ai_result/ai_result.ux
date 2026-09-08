@@ -27,17 +27,17 @@
         <text class="stat-val">{{ avgHeartRate }} bpm</text>
       </div>
       <div class="stat-row">
-        <text class="stat-label">最高心率/text>
+        <text class="stat-label">最高心率</text>
         <text class="stat-val">{{ maxHeartRate }} bpm</text>
       </div>
       <div class="stat-row">
-        <text class="stat-label">消耗热量/text>
+        <text class="stat-label">消耗热量</text>
         <text class="stat-val">{{ calories }} 千卡</text>
       </div>
     </div>
 
     <div class="bottom-hint">
-      <text class="swipe-hint">双右滑返回表盘/text>
+      <text class="swipe-hint">双右滑返回表盘</text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
       <text class="exit-hint-text">再滑一次返分</text>

@@ -53,7 +53,7 @@
       <text class="swipe-hint">双右滑返‹</text>
     </div>
     <div class="exit-hint" if="{{ showExitHint }}">
-      <text class="exit-hint-text">再滑一次退出/text>
+      <text class="exit-hint-text">再滑一次退出</text>
     </div>
   </div>
 </template>
@@ -117,7 +117,8 @@ export default {
 
   fetchWeather() {
     var self = this;
-    // 模拟天气数据（实际应调用系统API或BLE获取。    var weathers = ['晴', '多云', '阴', '小雨'];
+    // 模拟天气数据（实际应调用系统API或BLE获取）
+    var weathers = ['晴', '多云', '阴', '小雨'];
     var randomWeather = weathers[Math.floor(Math.random() * weathers.length)];
     var data = weatherData[randomWeather] || weatherData['晴'];
 

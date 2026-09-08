@@ -12,7 +12,8 @@
     { "name": "service.health" },
     { "name": "system.sensor" },
     { "name": "system.vibrator" },
-    { "name": "system.bluetooth" }
+    { "name": "system.bluetooth" },
+    { "name": "service.ble" }
   ],
   "permissions": [
     { "name": "hapjs.permission.HEALTH" },
